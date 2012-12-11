@@ -1,3 +1,12 @@
+local addonName, vars = ...
+local L = vars.L
+Arh = {}
+local addon = Arh
+addon.vars = vars
+vars.svnrev = vars.svnrev or {}
+local svnrev = vars.svnrev
+svnrev["Arh.lua"] = tonumber(("$Revision$"):match("%d+"))
+
 local MapData = nil
 local Config = nil -- AceConfig-3.0
 
@@ -153,18 +162,18 @@ Arh_DefaultConfig =
 	},
 }
 
-BINDING_HEADER_ARH = "Archaeology Helper"
-_G["BINDING_NAME_CLICK Arh_MainFrame_ButtonDig:LeftButton"] = "Cast Survey"
-BINDING_NAME_ARH_TOGGLEHUD = "Show/Hide the HUD"
-BINDING_NAME_ARH_SHOWARCHAEOLOGYFRAME = "Open archaeology window"
-BINDING_NAME_ARH_PROF = "Show/Hide the HUD"
-BINDING_NAME_ARH_ADDRED = "Add red area to the HUD"
-BINDING_NAME_ARH_ADDYELLOW = "Add yellow area to the HUD"
-BINDING_NAME_ARH_ADDGREEN = "Add green area to the HUD"
-BINDING_NAME_ARH_TOGGLERED = "Show/Hide all red areas"
-BINDING_NAME_ARH_TOGGLEYELLOW = "Show/Hide all yellow areas"
-BINDING_NAME_ARH_TOGGLEGREEN = "Show/Hide all green areas"
-BINDING_NAME_ARH_BACK = "Remove one previously added area"
+BINDING_HEADER_ARH = L["Archaeology Helper"]
+_G["BINDING_NAME_CLICK Arh_MainFrame_ButtonDig:LeftButton"] = L["Cast Survey"]
+BINDING_NAME_ARH_TOGGLEHUD = L["Show/Hide the HUD"]
+BINDING_NAME_ARH_SHOWARCHAEOLOGYFRAME = L["Open archaeology window"]
+BINDING_NAME_ARH_PROF = L["Show/Hide the HUD"]
+BINDING_NAME_ARH_ADDRED = L["Add red area to the HUD"]
+BINDING_NAME_ARH_ADDYELLOW = L["Add yellow area to the HUD"]
+BINDING_NAME_ARH_ADDGREEN = L["Add green area to the HUD"]
+BINDING_NAME_ARH_TOGGLERED = L["Show/Hide all red areas"]
+BINDING_NAME_ARH_TOGGLEYELLOW = L["Show/Hide all yellow areas"]
+BINDING_NAME_ARH_TOGGLEGREEN = L["Show/Hide all green areas"]
+BINDING_NAME_ARH_BACK = L["Remove one previously added area"]
 
 local function Arh_UpdateSettings()
 	local c
@@ -232,11 +241,11 @@ local OptionsTable =
 			ResetToDefaults =
 			{
 				order = 1,
-				name = "Reset All Settings",
-				desc = "Resets all settings to defaults",
+				name = L["Reset All Settings"],
+				desc = L["Resets all settings to defaults"],
 				type = "execute",
 				confirm = true,
-				confirmText = "This will overwrite current settings!",
+				confirmText = L["This will overwrite current settings!"],
 				func =
 						function()
 							Arh_Config = CopyByValue(Arh_DefaultConfig)
@@ -247,8 +256,8 @@ local OptionsTable =
 			MainFrame =
 			{
 				order = 2,
-				name = "Main Window",
-				desc = "Main window settings",
+				name = L["Main Window"],
+				desc = L["Main window settings"],
 				type = "group",
 				args =
 				{
@@ -256,19 +265,19 @@ local OptionsTable =
 					{
 						order = 1,
 						type = "group",
-						name = "Visual Settings",
+						name = L["Visual Settings"],
 						inline = true,
 						args =
 						{
 							reset =
 							{
 								order = 1,
-								name = "Reset Position",
-								desc = "Resets window position to the center of the screen",
+								name = L["Reset Position"],
+								desc = L["Resets window position to the center of the screen"],
 								type = "execute",
 								width = "full",
 								confirm = true,
-								confirmText = "This will reset Main Window position",
+								confirmText = L["This will reset Main Window position"],
 								func =
 										function()
 											Arh_MainFrame:ClearAllPoints()
@@ -278,8 +287,8 @@ local OptionsTable =
 							visible =
 							{
 								order = 2,
-								name = "Visible",
-								desc = "Whether window is visible",
+								name = L["Visible"],
+								desc = L["Whether window is visible"],
 								type = "toggle",
 								get = function(info) return cfg.MainFrame.Visible end,
 								set =
@@ -290,8 +299,8 @@ local OptionsTable =
 							locked =
 							{
 								order = 3,
-								name = "Locked",
-								desc = "Locks window to prevent accidental repositioning",
+								name = L["Locked"],
+								desc = L["Locks window to prevent accidental repositioning"],
 								type = "toggle",
 								get = function(info) return cfg.MainFrame.Locked end,
 								set =
@@ -302,8 +311,8 @@ local OptionsTable =
 							scale =
 							{
 								order = 4,
-								name = "Scaling",
-								desc = "Size of the main window",
+								name = L["Scaling"],
+								desc = L["Size of the main window"],
 								type = "range",
 								min = 0.1,
 								max = 100,
@@ -320,8 +329,8 @@ local OptionsTable =
 							alpha =
 							{
 								order = 5,
-								name = "Alpha",
-								desc = "How transparent is window",
+								name = L["Alpha"],
+								desc = L["How transparent is window"],
 								type = "range",
 								min = 0,
 								max = 1,
@@ -337,8 +346,8 @@ local OptionsTable =
 							ShowTooltips =
 							{
 								order = 6,
-								name = "Show Tooltips",
-								desc = "Show Tooltips in the main window",
+								name = L["Show Tooltips"],
+								desc = L["Show Tooltips in the main window"],
 								type = "toggle",
 								get = function(info) return cfg.MainFrame.ShowTooltips end,
 								set = function(info, val) cfg.MainFrame.ShowTooltips = val end,
@@ -346,8 +355,8 @@ local OptionsTable =
 							TooltipsScaling =
 							{
 								order = 7,
-								name = "Tooltips Scaling",
-								desc = "Scale main window Tooltips",
+								name = L["Tooltips Scaling"],
+								desc = L["Scale main window Tooltips"],
 								type = "range",
 								min = 0.10,
 								max = 3.00,
@@ -367,15 +376,15 @@ local OptionsTable =
 					{
 						order = 2,
 						type = "group",
-						name = "Audio Settings",
+						name = L["Audio Settings"],
 						inline = true,
 						args =
 						{
 							PlaySounds =
 							{
 								order = 1,
-								name = "Play Sounds",
-								desc = "Play confirmation sounds for various actions",
+								name = L["Play Sounds"],
+								desc = L["Play confirmation sounds for various actions"],
 								type = "toggle",
 								get = function(info) return cfg.MainFrame.PlaySounds end,
 								set =
@@ -389,7 +398,7 @@ local OptionsTable =
 					{
 						order = 3,
 						type = "group",
-						name = "Key Bindings Settings",
+						name = L["Key Bindings Settings"],
 						inline = true,
 						args = 
 						{
@@ -399,7 +408,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = _G["BINDING_NAME_CLICK Arh_MainFrame_ButtonDig:LeftButton"],
-								desc = "Cast Survey",
+								desc = L["Cast Survey"],
 								get =
 										function()
 											return GetBindingKey("CLICK Arh_MainFrame_ButtonDig:LeftButton")
@@ -415,7 +424,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_TOGGLEHUD,
-								desc = "You can also use |cff69ccf0/arh h|r command for this action",
+								desc = L["You can also use |cff69ccf0/arh h|r command for this action"],
 								get =
 										function()
 											return GetBindingKey("ARH_TOGGLEHUD")
@@ -431,7 +440,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_SHOWARCHAEOLOGYFRAME,
-								desc = "Open archaeology window",
+								desc = L["Open archaeology window"],
 								get =
 										function()
 											return GetBindingKey("ARH_SHOWARCHAEOLOGYFRAME")
@@ -447,7 +456,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_ADDRED,
-								desc = "You can also use |cff69ccf0/arh ar|r command for this action",
+								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh ar|r"),
 								get =
 										function()
 											return GetBindingKey("ARH_ADDRED")
@@ -463,7 +472,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_ADDYELLOW,
-								desc = "You can also use |cff69ccf0/arh ay|r command for this action",
+								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh ay|r"),
 								get =
 										function()
 											return GetBindingKey("ARH_ADDYELLOW")
@@ -479,7 +488,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_ADDGREEN,
-								desc = "You can also use |cff69ccf0/arh ag|r command for this action",
+								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh ag|r"),
 								get =
 										function()
 											return GetBindingKey("ARH_ADDGREEN")
@@ -495,7 +504,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_TOGGLERED,
-								desc = "Show/Hide all red areas",
+								desc = L["Show/Hide all red areas"],
 								get =
 										function()
 											return GetBindingKey("ARH_TOGGLERED")
@@ -511,7 +520,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_TOGGLEYELLOW,
-								desc = "Show/Hide all yellow areas",
+								desc = L["Show/Hide all yellow areas"],
 								get =
 										function()
 											return GetBindingKey("ARH_TOGGLEYELLOW")
@@ -527,7 +536,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_TOGGLEGREEN,
-								desc = "Show/Hide all green areas",
+								desc = L["Show/Hide all green areas"],
 								get =
 										function()
 											return GetBindingKey("ARH_TOGGLEGREEN")
@@ -543,7 +552,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_BACK,
-								desc = "Remove one previously added area",
+								desc = L["Remove one previously added area"],
 								get =
 										function()
 											return GetBindingKey("ARH_BACK")
@@ -561,8 +570,8 @@ local OptionsTable =
 			HUD =
 			{
 				order = 3,
-				name = "HUD",
-				desc = "HUD settings",
+				name = L["HUD"],
+				desc = L["HUD settings"],
 				type = "group",
 				args =
 				{
@@ -570,15 +579,15 @@ local OptionsTable =
 					{
 						order = 1,
 						type = "group",
-						name = "General HUD Settings",
+						name = L["General HUD Settings"],
 						inline = true,
 						args = 
 						{
 							ShowGatherMate2 =
 							{
 								order = 1,
-								name = "Show GatherMate2 pins on the HUD (recomended)",
-								desc = "Redirect GatherMate2 output to the HUD when visible",
+								name = L["Show GatherMate2 pins on the HUD (recomended)"],
+								desc = L["Redirect GatherMate2 output to the HUD when visible"],
 								type = "toggle",
 								width = "full",
 								disabled = function(info) return not GatherMate2 end,
@@ -588,8 +597,8 @@ local OptionsTable =
 							scale =
 							{
 								order = 2,
-								name = "HUD Scaling",
-								desc = "Size of the HUD\nIf you need ZOOM - use Minimap ZOOM instead",
+								name = L["HUD Scaling"],
+								desc = L["Size of the HUD\nIf you need ZOOM - use Minimap ZOOM instead"],
 								type = "range",        
 								min = 0.1,
 								max = 100,
@@ -606,8 +615,8 @@ local OptionsTable =
 							alpha =
 							{
 								order = 3,
-								name = "HUD Alpha",
-								desc = "How transparent is HUD",
+								name = L["HUD Alpha"],
+								desc = L["How transparent is HUD"],
 								type = "range",        
 								min = 0,
 								max = 1,
@@ -623,8 +632,8 @@ local OptionsTable =
 							ShowArrow =
 							{
 								order = 4,
-								name = "Show Player Arrow",
-								desc = "Draw arrow in the center of the HUD",
+								name = L["Show Player Arrow"],
+								desc = L["Draw arrow in the center of the HUD"],
 								type = "toggle",
 								width = "full",
 								get = function(info) return cfg.HUD.ShowArrow end,
@@ -637,8 +646,8 @@ local OptionsTable =
 							ArrowScale =
 							{
 								order = 5,
-								name = "Arrow Scaling",
-								desc = "Size of the Player Arrow",
+								name = L["Arrow Scaling"],
+								desc = L["Size of the Player Arrow"],
 								type = "range",
 								disabled = function(info) return not cfg.HUD.ShowArrow end,
 								min = 0.1,
@@ -656,8 +665,8 @@ local OptionsTable =
 							ArrowAlpha =
 							{
 								order = 6,
-								name = "Arrow Alpha",
-								desc = "How transparent is Player Arrow",
+								name = L["Arrow Alpha"],
+								desc = L["How transparent is Player Arrow"],
 								type = "range",
 								disabled = function(info) return not cfg.HUD.ShowArrow end,
 								min = 0,
@@ -674,8 +683,8 @@ local OptionsTable =
 							ShowSuccessCircle =
 							{
 								order = 7,
-								name = "Show Success Circle",
-								desc = "Survae will success if fragment lay within this circle",
+								name = L["Show Success Circle"],
+								desc = L["Survey will succeed if fragment lies within this circle"],
 								type = "toggle",
 								get = function(info) return cfg.HUD.ShowSuccessCircle end,
 								set =
@@ -687,8 +696,8 @@ local OptionsTable =
 							SuccessCircleColor =
 							{
 								order = 8,
-								name = "Success Circle Color",
-								desc = "Color of the Success Circle (you can also set alpha here)",
+								name = L["Success Circle Color"],
+								desc = L["Color of the Success Circle (you can also set alpha here)"],
 								type = "color",
 								hasAlpha  = true,
 								disabled = function(info) return not cfg.HUD.ShowSuccessCircle end,
@@ -711,15 +720,15 @@ local OptionsTable =
 					{
 						order = 2,
 						type = "group",
-						name = "Compass Settings",
+						name = L["Compass Settings"],
 						inline = true,
 						args = 
 						{
 							ShowCompass =
 							{
 								order = 1,
-								name = "Show compass",
-								desc = "Draw compass-like  circle on the HUD",
+								name = L["Show compass"],
+								desc = L["Draw compass-like circle on the HUD"],
 								type = "toggle",
 								get = function(info) return cfg.HUD.ShowCompass end,
 								set =
@@ -734,8 +743,8 @@ local OptionsTable =
 							CompassRadius =
 							{
 								order = 2,
-								name = "Radius (yards)",
-								desc = "Radius of the compass circle",
+								name = L["Radius (yards)"],
+								desc = L["Radius of the compass circle"],
 								type = "range",
 								disabled = function(info) return not cfg.HUD.ShowCompass end,
 								min = 1,
@@ -753,8 +762,8 @@ local OptionsTable =
 							CompassColor =
 							{
 								order = 3,
-								name = "Compass Circle Color",
-								desc = "Color of the Compass Circle (you can also set alpha here)",
+								name = L["Compass Circle Color"],
+								desc = L["Color of the Compass Circle (you can also set alpha here)"],
 								type = "color",
 								hasAlpha  = true,
 								disabled = function(info) return not cfg.HUD.ShowCompass end,
@@ -773,8 +782,8 @@ local OptionsTable =
 							CompassTextColor =
 							{
 								order = 4,
-								name = "Direction Marks Color",
-								desc = "Color of Compass Direction Marks (you can also set alpha here)",
+								name = L["Direction Marks Color"],
+								desc = L["Color of Compass Direction Marks (you can also set alpha here)"],
 								type = "color",
 								hasAlpha  = true,
 								disabled = function(info) return not cfg.HUD.ShowCompass end,
@@ -799,15 +808,15 @@ local OptionsTable =
 					{
 						order = 3,
 						type = "group",
-						name = "Annulus Sectors Settings",
+						name = L["Annulus Sectors Settings"],
 						inline = true,
 						args = 
 						{
 							RedSectAlpha =
 							{
 								order = 1,
-								name = "Red Sector Alpha",
-								desc = "How transparent is Red Annulus Sector",
+								name = L["Red Sector Alpha"],
+								desc = L["How transparent is Red Annulus Sector"],
 								type = "range",
 								min = 0,
 								max = 1,
@@ -823,8 +832,8 @@ local OptionsTable =
 							RedLineAlpha =
 							{
 								order = 2,
-								name = "Red Line Alpha",
-								desc = "How transparent is Red Direction Line",
+								name = L["Red Line Alpha"],
+								desc = L["How transparent is Red Direction Line"],
 								type = "range",
 								min = 0,
 								max = 1,
@@ -840,8 +849,8 @@ local OptionsTable =
 							YellowSectAlpha =
 							{
 								order = 3,
-								name = "Yellow Sector Alpha",
-								desc = "How transparent is Yellow Annulus Sector",
+								name = L["Yellow Sector Alpha"],
+								desc = L["How transparent is Yellow Annulus Sector"],
 								type = "range",
 								min = 0,
 								max = 1,
@@ -857,8 +866,8 @@ local OptionsTable =
 							YellowLineAlpha =
 							{
 								order = 4,
-								name = "Yellow Line Alpha",
-								desc = "How transparent is Yellow Direction Line",
+								name = L["Yellow Line Alpha"],
+								desc = L["How transparent is Yellow Direction Line"],
 								type = "range",
 								min = 0,
 								max = 1,
@@ -874,8 +883,8 @@ local OptionsTable =
 							GreenSectAlpha =
 							{
 								order = 5,
-								name = "Green Sector Alpha",
-								desc = "How transparent is Green Annulus Sector",
+								name = L["Green Sector Alpha"],
+								desc = L["How transparent is Green Annulus Sector"],
 								type = "range",
 								min = 0,
 								max = 1,
@@ -891,8 +900,8 @@ local OptionsTable =
 							GreenLineAlpha =
 							{
 								order = 6,
-								name = "Green Line Alpha",
-								desc = "How transparent is Green Direction Line",
+								name = L["Green Line Alpha"],
+								desc = L["How transparent is Green Direction Line"],
 								type = "range",
 								min = 0,
 								max = 1,
@@ -912,16 +921,16 @@ local OptionsTable =
 			DigSites =
 			{
 				order = 4,
-				name = "Dig Sites",
-				desc = "Dig Sites settings",
+				name = L["Dig Sites"],
+				desc = L["Dig Sites"],
 				type = "group",
 				args =
 				{
 					ShowOnBattlefieldMinimap =
 					{
 						order = 1,
-						name = "Show digsites on the Battlefield Minimap",
-						desc = "Use |cff69ccf0Shift-M|r to open or hide Battlefield Minimap",
+						name = L["Show digsites on the Battlefield Minimap"],
+						desc = L["Use |cff69ccf0Shift-M|r to open or hide Battlefield Minimap"],
 						type = "toggle",
 						width = "full",
 						get = function(info) return cfg.DigSites.ShowOnBattlefieldMinimap end,
@@ -934,8 +943,8 @@ local OptionsTable =
 					ShowOnMinimap =
 					{
 						order = 2,
-						name = "Show digsites on the Minimap",
-						desc = "Digsites will be drawn outsite Minimap sometimes\nYou can also use |cff69ccf0/arh mm|r command to toggle this option",
+						name = L["Show digsites on the Minimap"],
+						desc = L["Digsites will be drawn outsite Minimap sometimes\nYou can also use |cff69ccf0/arh mm|r command to toggle this option"],
 						type = "toggle",
 						width = "full",
 						confirm = function(info) return not cfg.DigSites.ShowOnMinimap end,
@@ -982,18 +991,23 @@ end
 
 local function SetTooltips()
 	Arh_MainFrame.TooltipText =
-								function(self)
-									if cfg.MainFrame.Locked then
-										return cs("Right Click")..": open configuration page"
-									else
-										return cs("Left Click")..": move window\n"..cs("Right Click")..": open configuration page"
-									end
-								end
-	Arh_MainFrame_ButtonRed.TooltipText = cs("Left Click")..": add new red zone to the HUD\n"..cs("Right Click")..": show/hide all red areas on the HUD"
-	Arh_MainFrame_ButtonYellow.TooltipText = cs("Left Click")..": add new yellow zone to the HUD\n"..cs("Right Click")..": show/hide all yellow areas on the HUD"
-	Arh_MainFrame_ButtonGreen.TooltipText = cs("Left Click")..": add new green zone to the HUD\n"..cs("Right Click")..": show/hide all green areas on the HUD"
-	Arh_MainFrame_ButtonDig.TooltipText = cs("Left Click")..": cast Survey\n"..cs("Right Click")..": show/hide HUD window\n"..cs("Middle Click")..": open archaeology window"
-	Arh_MainFrame_ButtonBack.TooltipText = cs("Left Click")..": remove one previously added area"
+		function(self)
+			if cfg.MainFrame.Locked then
+				return cs(L["Right Click"])..": "..L["open configuration page"]
+			else
+				return cs(L["Left Click"])..": "..L["move window"].."\n"..cs(L["Right Click"])..": "..L["open configuration page"]
+			end
+		end
+	Arh_MainFrame_ButtonRed.TooltipText = cs(L["Left Click"])..": "..L["add new red zone to the HUD"].."\n"..
+                                              cs(L["Right Click"])..": "..L["show/hide all red areas on the HUD"]
+	Arh_MainFrame_ButtonYellow.TooltipText = cs(L["Left Click"])..": "..L["add new yellow zone to the HUD"].."\n"..
+                                                 cs(L["Right Click"])..": "..L["show/hide all yellow areas on the HUD"]
+	Arh_MainFrame_ButtonGreen.TooltipText = cs(L["Left Click"])..": "..L["add new green zone to the HUD"].."\n"..
+                                                cs(L["Right Click"])..": "..L["show/hide all green areas on the HUD"]
+	Arh_MainFrame_ButtonDig.TooltipText = cs(L["Left Click"])..": "..L["cast Survey"].."\n"..
+                                              cs(L["Right Click"])..": "..L["show/hide HUD window"].."\n"..
+                                              cs(L["Middle Click"])..": "..L["open archaeology window"]
+	Arh_MainFrame_ButtonBack.TooltipText = cs(L["Left Click"])..": "..L["remove one previously added area"]
 end
 
 local function RotateTexture(texture, angle)
@@ -1425,17 +1439,17 @@ local function OnHelp()
 		return cs(str1)..", "..cs(str2)
 	end
 	print("Arguments to "..cs("/arh")..":")
-	print("  "..os("toggle","t").." - hide/show main window")
-	print("  "..os("hud","h").." - hide/show HUD window")
-	print("  "..os("addred","ar").." - add new red zone to the HUD")
-	print("  "..os("addyellow","ay").." - add new yellow zone to the HUD")
-	print("  "..os("addgreen","ag").." - add new green zone to the HUD")
-	print("  "..os("togglered","tr").." - show/hide all red areas on the HUD")
-	print("  "..os("toggleyellow","ty").." - show/hide all yellow areas on the HUD")
-	print("  "..os("togglegreen","tg").." - show/hide all green areas on the HUD")
-	print("  "..os("back","b").." - remove one previously added area")
-	print("  "..os("clear","c").." - clear HUD")
-	print("  "..os("minimap","mm").." - hide/show buggy digsites on minimap")
+	print("  "..os("toggle","t").." - "..L["hide/show main window"])
+	print("  "..os("hud","h").." - "..L["hide/show HUD window"])
+	print("  "..os("addred","ar").." - "..L["add new red zone to the HUD"])
+	print("  "..os("addyellow","ay").." - "..L["add new yellow zone to the HUD"])
+	print("  "..os("addgreen","ag").." - "..L["add new green zone to the HUD"])
+	print("  "..os("togglered","tr").." - "..L["show/hide all red areas on the HUD"])
+	print("  "..os("toggleyellow","ty").." - "..L["show/hide all yellow areas on the HUD"])
+	print("  "..os("togglegreen","tg").." - "..L["show/hide all green areas on the HUD"])
+	print("  "..os("back","b").." - "..L["remove one previously added area"])
+	print("  "..os("clear","c").." - "..L["clear HUD"])
+	print("  "..os("minimap","mm").." - "..L["hide/show buggy digsites on minimap"])
 end
 
 local function handler(msg, editbox)
@@ -1531,8 +1545,8 @@ function Arh_MainFrame_Init()
 
 	Config = LibStub("AceConfig-3.0")
 	ConfigDialog = LibStub("AceConfigDialog-3.0")
-	Config:RegisterOptionsTable("Archaeology Helper Options", OptionsTable, "arhcfg")
-	ConfigDialog:AddToBlizOptions("Archaeology Helper Options", "Arh")
+	Config:RegisterOptionsTable("Archaeology Helper", OptionsTable, "arhcfg")
+	ConfigDialog:AddToBlizOptions("Archaeology Helper", "Arh")
 
 	SetVisible(Arh_MainFrame, cfg.MainFrame.Visible)
 	Arh_MainFrame:SetScale(cfg.MainFrame.Scale)
