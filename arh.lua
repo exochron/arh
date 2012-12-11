@@ -167,12 +167,12 @@ _G["BINDING_NAME_CLICK Arh_MainFrame_ButtonDig:LeftButton"] = L["Cast Survey"]
 BINDING_NAME_ARH_TOGGLEHUD = L["Show/Hide the HUD"]
 BINDING_NAME_ARH_SHOWARCHAEOLOGYFRAME = L["Open archaeology window"]
 BINDING_NAME_ARH_PROF = L["Show/Hide the HUD"]
-BINDING_NAME_ARH_ADDRED = L["Add red area to the HUD"]
-BINDING_NAME_ARH_ADDYELLOW = L["Add yellow area to the HUD"]
-BINDING_NAME_ARH_ADDGREEN = L["Add green area to the HUD"]
-BINDING_NAME_ARH_TOGGLERED = L["Show/Hide all red areas"]
-BINDING_NAME_ARH_TOGGLEYELLOW = L["Show/Hide all yellow areas"]
-BINDING_NAME_ARH_TOGGLEGREEN = L["Show/Hide all green areas"]
+BINDING_NAME_ARH_ADDRED = 	L["Add %s area to the HUD"]:format(L["red"])
+BINDING_NAME_ARH_ADDYELLOW = 	L["Add %s area to the HUD"]:format(L["yellow"])
+BINDING_NAME_ARH_ADDGREEN = 	L["Add %s area to the HUD"]:format(L["green"])
+BINDING_NAME_ARH_TOGGLERED = 	L["Show/Hide all %s areas"]:format(L["red"])
+BINDING_NAME_ARH_TOGGLEYELLOW = L["Show/Hide all %s areas"]:format(L["yellow"])
+BINDING_NAME_ARH_TOGGLEGREEN = 	L["Show/Hide all %s areas"]:format(L["green"])
 BINDING_NAME_ARH_BACK = L["Remove one previously added area"]
 
 local function Arh_UpdateSettings()
@@ -504,7 +504,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_TOGGLERED,
-								desc = L["Show/Hide all red areas"],
+								desc = L["Show/Hide all %s areas"]:format(L["red"]),
 								get =
 										function()
 											return GetBindingKey("ARH_TOGGLERED")
@@ -520,7 +520,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_TOGGLEYELLOW,
-								desc = L["Show/Hide all yellow areas"],
+								desc = L["Show/Hide all %s areas"]:format(L["yellow"]),
 								get =
 										function()
 											return GetBindingKey("ARH_TOGGLEYELLOW")
@@ -536,7 +536,7 @@ local OptionsTable =
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_TOGGLEGREEN,
-								desc = L["Show/Hide all green areas"],
+								desc = L["Show/Hide all %s areas"]:format(L["green"]),
 								get =
 										function()
 											return GetBindingKey("ARH_TOGGLEGREEN")
@@ -815,8 +815,8 @@ local OptionsTable =
 							RedSectAlpha =
 							{
 								order = 1,
-								name = L["Red Sector Alpha"],
-								desc = L["How transparent is Red Annulus Sector"],
+								name = L["%s Sector Alpha"]:format(L["Red"]),
+								desc = L["How transparent is %s Annulus Sector"]:format(L["Red"]),
 								type = "range",
 								min = 0,
 								max = 1,
@@ -832,8 +832,8 @@ local OptionsTable =
 							RedLineAlpha =
 							{
 								order = 2,
-								name = L["Red Line Alpha"],
-								desc = L["How transparent is Red Direction Line"],
+								name = L["%s Line Alpha"]:format(L["Red"]),
+								desc = L["How transparent is %s Direction Line"]:format(L["Red"]),
 								type = "range",
 								min = 0,
 								max = 1,
@@ -849,8 +849,8 @@ local OptionsTable =
 							YellowSectAlpha =
 							{
 								order = 3,
-								name = L["Yellow Sector Alpha"],
-								desc = L["How transparent is Yellow Annulus Sector"],
+								name = L["%s Sector Alpha"]:format(L["Yellow"]),
+								desc = L["How transparent is %s Annulus Sector"]:format(L["Yellow"]),
 								type = "range",
 								min = 0,
 								max = 1,
@@ -866,8 +866,8 @@ local OptionsTable =
 							YellowLineAlpha =
 							{
 								order = 4,
-								name = L["Yellow Line Alpha"],
-								desc = L["How transparent is Yellow Direction Line"],
+								name = L["%s Line Alpha"]:format(L["Yellow"]),
+								desc = L["How transparent is %s Direction Line"]:format(L["Yellow"]),
 								type = "range",
 								min = 0,
 								max = 1,
@@ -883,8 +883,8 @@ local OptionsTable =
 							GreenSectAlpha =
 							{
 								order = 5,
-								name = L["Green Sector Alpha"],
-								desc = L["How transparent is Green Annulus Sector"],
+								name = L["%s Sector Alpha"]:format(L["Green"]),
+								desc = L["How transparent is %s Annulus Sector"]:format(L["Green"]),
 								type = "range",
 								min = 0,
 								max = 1,
@@ -900,8 +900,8 @@ local OptionsTable =
 							GreenLineAlpha =
 							{
 								order = 6,
-								name = L["Green Line Alpha"],
-								desc = L["How transparent is Green Direction Line"],
+								name = L["%s Line Alpha"]:format(L["Green"]),
+								desc = L["How transparent is %s Direction Line"]:format(L["Green"]),
 								type = "range",
 								min = 0,
 								max = 1,
@@ -998,12 +998,12 @@ local function SetTooltips()
 				return cs(L["Left Click"])..": "..L["move window"].."\n"..cs(L["Right Click"])..": "..L["open configuration page"]
 			end
 		end
-	Arh_MainFrame_ButtonRed.TooltipText = cs(L["Left Click"])..": "..L["add new red zone to the HUD"].."\n"..
-                                              cs(L["Right Click"])..": "..L["show/hide all red areas on the HUD"]
-	Arh_MainFrame_ButtonYellow.TooltipText = cs(L["Left Click"])..": "..L["add new yellow zone to the HUD"].."\n"..
-                                                 cs(L["Right Click"])..": "..L["show/hide all yellow areas on the HUD"]
-	Arh_MainFrame_ButtonGreen.TooltipText = cs(L["Left Click"])..": "..L["add new green zone to the HUD"].."\n"..
-                                                cs(L["Right Click"])..": "..L["show/hide all green areas on the HUD"]
+	Arh_MainFrame_ButtonRed.TooltipText = cs(L["Left Click"])..": "..L["add new %s zone to the HUD"]:format(L["red"]).."\n"..
+                                              cs(L["Right Click"])..": "..L["show/hide all %s areas on the HUD"]:format(L["red"])
+	Arh_MainFrame_ButtonYellow.TooltipText = cs(L["Left Click"])..": "..L["add new %s zone to the HUD"]:format(L["yellow"]).."\n"..
+                                                 cs(L["Right Click"])..": "..L["show/hide all %s areas on the HUD"]:format(L["yellow"])
+	Arh_MainFrame_ButtonGreen.TooltipText = cs(L["Left Click"])..": "..L["add new %s zone to the HUD"]:format(L["green"]).."\n"..
+                                                cs(L["Right Click"])..": "..L["show/hide all %s areas on the HUD"]:format(L["green"])
 	Arh_MainFrame_ButtonDig.TooltipText = cs(L["Left Click"])..": "..L["cast Survey"].."\n"..
                                               cs(L["Right Click"])..": "..L["show/hide HUD window"].."\n"..
                                               cs(L["Middle Click"])..": "..L["open archaeology window"]
@@ -1441,12 +1441,12 @@ local function OnHelp()
 	print("Arguments to "..cs("/arh")..":")
 	print("  "..os("toggle","t").." - "..L["hide/show main window"])
 	print("  "..os("hud","h").." - "..L["hide/show HUD window"])
-	print("  "..os("addred","ar").." - "..L["add new red zone to the HUD"])
-	print("  "..os("addyellow","ay").." - "..L["add new yellow zone to the HUD"])
-	print("  "..os("addgreen","ag").." - "..L["add new green zone to the HUD"])
-	print("  "..os("togglered","tr").." - "..L["show/hide all red areas on the HUD"])
-	print("  "..os("toggleyellow","ty").." - "..L["show/hide all yellow areas on the HUD"])
-	print("  "..os("togglegreen","tg").." - "..L["show/hide all green areas on the HUD"])
+	print("  "..os("addred","ar").." - "..	 	L["add new %s zone to the HUD"]:format(L["red"]))
+	print("  "..os("addyellow","ay").." - "..	L["add new %s zone to the HUD"]:format(L["yellow"]))
+	print("  "..os("addgreen","ag").." - ".. 	L["add new %s zone to the HUD"]:format(L["green"]))
+	print("  "..os("togglered","tr").." - "..	L["show/hide all %s areas on the HUD"]:format(L["red"]))
+	print("  "..os("toggleyellow","ty").." - "..	L["show/hide all %s areas on the HUD"]:format(L["yellow"]))
+	print("  "..os("togglegreen","tg").." - "..	L["show/hide all %s areas on the HUD"]:format(L["green"]))
 	print("  "..os("back","b").." - "..L["remove one previously added area"])
 	print("  "..os("clear","c").." - "..L["clear HUD"])
 	print("  "..os("minimap","mm").." - "..L["hide/show buggy digsites on minimap"])
