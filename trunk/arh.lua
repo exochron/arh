@@ -157,7 +157,6 @@ Arh_DefaultConfig =
 	},
 	DigSites =
 	{
-		ShowOnMinimap = false,
 		ShowOnBattlefieldMinimap = true,
 	},
 }
@@ -218,7 +217,6 @@ local function Arh_UpdateSettings()
 
 -- Dig Sites
 	SetVisible(Arh_ArchaeologyDigSites_BattlefieldMinimap, cfg.DigSites.ShowOnBattlefieldMinimap)
-	SetVisible(Arh_ArchaeologyDigSites_Minimap, cfg.DigSites.ShowOnMinimap)
 end
 
 local function SafeSetBinding(key, action)
@@ -231,6 +229,28 @@ local function SafeSetBinding(key, action)
 		SetBinding(key, action)
 	end
 	SaveBindings(GetCurrentBindingSet())
+end
+
+-- return current value of minimap arch tracking
+function addon:GetDigsiteTracking()
+  local id, active
+  for i=1,GetNumTrackingTypes() do 
+    local name, texture, a, category = GetTrackingInfo(i)
+    if texture:find("ArchBlob") then
+      id = i
+      active = a
+      break
+    end
+  end
+  return active, id
+end
+-- set minimap arch tracking and return the old enabled value
+function addon:SetDigsiteTracking(on)
+  local active, id = addon:GetDigsiteTracking()
+  if id then
+    MiniMapTracking_SetTracking(Minimap, id, nil, on)
+  end
+  return active
 end
 
 local OptionsTable =
@@ -944,24 +964,11 @@ local OptionsTable =
 					{
 						order = 2,
 						name = L["Show digsites on the Minimap"],
-						desc = L["Digsites will be drawn outsite Minimap sometimes\nYou can also use |cff69ccf0/arh mm|r command to toggle this option"],
+						desc = L["You can also use |cff69ccf0/arh mm|r command to toggle this option"],
 						type = "toggle",
 						width = "full",
-						confirm = function(info) return not cfg.DigSites.ShowOnMinimap end,
-						confirmText = "It will be buggy!",
-						disabled = function(info) return GetCVar("rotateMinimap") == "1" end,
-						get = function(info) return cfg.DigSites.ShowOnMinimap end,
-						set =
-							function(info,val)
-								cfg.DigSites.ShowOnMinimap = val
-								SetVisible(Arh_ArchaeologyDigSites_Minimap, val)
-							end,
-					},
-					ShowOnMinimapNote =
-					{
-						order = 3,
-						name = "NOTE: The way blizzard currently implement Digsites Frame does not allow to draw it correctly on the Minimap. Digsites sometimes will exceed Minimap area. Additionally Digsites can't be shown on rotating Minimap. This note does not apply to Battlefield Minimap.",
-						type = "description",
+						get = function(info) return addon:GetDigsiteTracking() end,
+						set = function(info,val) addon:SetDigsiteTracking(val) end,
 					},
 				},
 			},
@@ -1458,7 +1465,8 @@ local function OnHelp()
 	print("  "..os("togglegreen","tg").." - "..	L["show/hide all %s areas on the HUD"]:format(L["green"]))
 	print("  "..os("back","b").." - "..L["remove one previously added area"])
 	print("  "..os("clear","c").." - "..L["clear HUD"])
-	print("  "..os("minimap","mm").." - "..L["hide/show buggy digsites on minimap"])
+	print("  "..os("minimap","mm").." - "..L["show/hide digsites on minimap"])
+	print("  "..os("config","co").." - "..L["show/hide config options"])
 end
 
 local function handler(msg, editbox)
@@ -1491,13 +1499,13 @@ local function handler(msg, editbox)
 
 
 	elseif msg=='minimap' or msg=='mm' then
-		if Arh_ArchaeologyDigSites_Minimap:IsVisible() then
-			cfg.DigSites.ShowOnMinimap = false
-			Arh_ArchaeologyDigSites_Minimap:Hide()
-		else
-			cfg.DigSites.ShowOnMinimap = true
-			Arh_ArchaeologyDigSites_Minimap:Show()
-		end
+		addon:SetDigsiteTracking(not addon:GetDigsiteTracking())
+	elseif msg=='config' or msg=='co' then
+	    if InterfaceOptionsFrame:IsShown() then
+	        InterfaceOptionsFrame:Hide()
+	    else
+		InterfaceOptionsFrame_OpenToCategory("Arh")
+	    end
 	else
 		print("unknown command: "..msg)
 		print("use |cffffff78/arh|r for help on commands")
@@ -1572,14 +1580,6 @@ function Arh_MainFrame_Init()
 		SetVisible(Arh_ArchaeologyDigSites_BattlefieldMinimap, cfg.DigSites.ShowOnBattlefieldMinimap)
 	end
 
-	Arh_ArchaeologyDigSites_Minimap:ClearAllPoints()
-	Arh_ArchaeologyDigSites_Minimap:SetParent(Minimap)
-	Arh_ArchaeologyDigSites_Minimap:EnableMouse(false)
-	Arh_ArchaeologyDigSites_Minimap:SetFrameStrata("BACKGROUND")
-	if GetCVar("rotateMinimap") == "0" then
-		SetVisible(Arh_ArchaeologyDigSites_Minimap, cfg.DigSites.ShowOnMinimap)
-	end
-
 	InitCancelableButton(Arh_MainFrame_ButtonRed)
 	InitCancelableButton(Arh_MainFrame_ButtonYellow)
 	InitCancelableButton(Arh_MainFrame_ButtonGreen)
@@ -1626,32 +1626,7 @@ function Arh_MainFrame_OnHide()
 	end
 end
 
-local function RePositionDigSites_Minimap(self)
-	local x, y = addon:GetPos()
-	local dx=(x-0.5)*self:GetWidth();
-	local dy=(y-0.5)*self:GetHeight();
-	self:ClearAllPoints();
-	self:SetPoint("CENTER", Minimap, "CENTER", -dx, dy);
-end
 local old_pw, old_ph = -1, -1
-local function UpdateDigSitesSize_Minimap(self)
-	local mapWidth = self:GetParent():GetWidth()
-	local mapHeight = self:GetParent():GetHeight()
-	local mapSizePix = math.min(mapWidth, mapHeight);
-
-	local indoors = GetCVar("minimapZoom")+0 == Minimap:GetZoom() and "outdoor" or "indoor"
-	local zoom = Minimap:GetZoom()
-	local mapSizeYards = minimap_size[indoors][zoom]
-
-	local yw, yh = MapData:MapArea(GetCurrentMapAreaID(), GetCurrentMapDungeonLevel())
-	local pw = yw*mapSizePix/mapSizeYards
-	local ph = yh*mapSizePix/mapSizeYards
-
-	if pw==old_pw and ph==oldph then return end
-	old_pw, old_ph = pw, ph
-
-	self:SetSize(pw, ph);
-end
 
 function Arh_ArchaeologyDigSites_OnLoad(self)
 	self:SetFillAlpha(128);
@@ -1664,17 +1639,6 @@ end
 
 function Arh_ArchaeologyDigSites_BattlefieldMinimap_OnUpdate(self, elapsed)
 	self:DrawNone()
-	local numEntries = ArchaeologyMapUpdateAll()
-	for i = 1, numEntries do
-		local blobID = ArcheologyGetVisibleBlobID(i)
-		self:DrawBlob(blobID, true)
-	end
-end
-
-function Arh_ArchaeologyDigSites_Minimap_OnUpdate(self, elapsed)
-	self:DrawNone()
-	RePositionDigSites_Minimap(self)
-	UpdateDigSitesSize_Minimap(self)
 	local numEntries = ArchaeologyMapUpdateAll()
 	for i = 1, numEntries do
 		local blobID = ArcheologyGetVisibleBlobID(i)

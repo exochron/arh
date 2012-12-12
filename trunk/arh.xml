@@ -127,14 +127,6 @@
 				<OnLeave> Arh_HideTooltip(self) </OnLeave>
 			</Scripts>
 		</Button>
-		<ArchaeologyDigSiteFrame name="Arh_ArchaeologyDigSites_Minimap" hidden="true">
-		  	<Size x="1002" y="668"/>
-			<Scripts>
-				<OnLoad function="Arh_ArchaeologyDigSites_OnLoad"/>
-				<OnUpdate function="Arh_ArchaeologyDigSites_Minimap_OnUpdate"/>
-				<OnEnter> self:EnableMouse(false) </OnEnter>
-			</Scripts>
-		</ArchaeologyDigSiteFrame>
 		<ArchaeologyDigSiteFrame name="Arh_ArchaeologyDigSites_BattlefieldMinimap" hidden="true">
 		  	<Size x="1002" y="668"/>
 			<Scripts>
