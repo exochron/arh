@@ -1191,7 +1191,7 @@ local function UpdateConsPositions(player_x, player_y, player_a)
 	end
 end
 
-function UpdateAlpha(texture, color, isline)
+function addon:UpdateAlpha(texture, color, isline)
 	local a
 	if isline then
 		if color == ARH_RED then
@@ -1218,17 +1218,17 @@ function Arh_UpdateAlphaEverything(color, isline)
 	for i=0,ConsArraySize-1 do
 		if color == ConsArray[i].color then
 			if isline then
-				UpdateAlpha(ConsArray[i].texture_line, color, true)
+				addon:UpdateAlpha(ConsArray[i].texture_line, color, true)
 			else
-				UpdateAlpha(ConsArray[i].texture, color, false)
+				addon:UpdateAlpha(ConsArray[i].texture, color, false)
 			end
 		end
 	end
 	for i=0,ConsCache[color].size-1 do
 		if isline then
-			UpdateAlpha(ConsCache[color].items[i].texture_line, color, true)
+			addon:UpdateAlpha(ConsCache[color].items[i].texture_line, color, true)
 		else
-			UpdateAlpha(ConsCache[color].items[i].texture, color, false)
+			addon:UpdateAlpha(ConsCache[color].items[i].texture, color, false)
 		end
 	end
 end
@@ -1238,10 +1238,23 @@ local function UpdateCons(player_x, player_y, player_a)
 	UpdateConsPositions(player_x, player_y, player_a)
 end
 
-function Arh_ToYards(x, y)
-	local level = GetCurrentMapDungeonLevel();
-	local map = GetCurrentMapAreaID();
-	return MapData:PointToYards(map, level, x, y);	
+function addon:GetPos()
+  local oldmap = GetCurrentMapAreaID()
+  local oldlvl = GetCurrentMapDungeonLevel()
+  SetMapToCurrentZone();
+  local level = GetCurrentMapDungeonLevel();
+  local map = GetCurrentMapAreaID();
+  local x, y = GetPlayerMapPosition("player")
+  SetMapByID(oldmap)
+  if oldlvl and oldlvl > 0 then
+    SetDungeonMapLevel(oldlvl)
+  end
+  return x,y,map,level
+end
+
+function addon:GetPosYards()
+  local x,y,map,level = addon:GetPos()
+  return MapData:PointToYards(map, level, x, y)
 end
 
 local function Distance(xa, ya, xb, yb)
@@ -1280,9 +1293,7 @@ local function CalcAngle(xa, ya, xb, yb)
 end
 
 local function AddPoint(color)
-	SetMapToCurrentZone();
-	local x, y = GetPlayerMapPosition("player")
-        local jax, jay = Arh_ToYards(x, y)
+        local jax, jay = addon:GetPosYards()
 	a = GetPlayerFacing()
 
 	AddCon(color, jax, jay, a)
@@ -1373,10 +1384,8 @@ function Arh_MainFrame_ButtonBack_OnMouseDown(self, button)
 	end
 end
 
-function SaveDifs()
-	SetMapToCurrentZone()
-	local px, py = GetPlayerMapPosition("player")
-	local japx, japy = Arh_ToYards(px, py)
+function addon:SaveDifs()
+	local japx, japy = addon:GetPosYards()
 
 	for i=0,ConsArraySize-1 do
 		local jad = Distance(ConsArray[i].x, ConsArray[i].y, japx, japy)
@@ -1395,8 +1404,8 @@ function SaveDifs()
 	end
 end
 
-function OnGathering()
---	SaveDifs()
+function addon:OnGathering()
+--	addon:SaveDifs()
 	Arh_ReturnAllToCache()
 	ToggleColorButton(Arh_MainFrame_ButtonRed, ARH_RED, true)
 	ToggleColorButton(Arh_MainFrame_ButtonYellow, ARH_YELLOW, true)
@@ -1500,7 +1509,7 @@ SLASH_ARH1 = "/arh"
 local function OnSpellSent(unit,spellcast,rank,target)
 	if unit ~= "player" then return end
 	if spellcast==GetSpellInfo(73979) then -- "Searching for Artifacts"
-		OnGathering()
+		addon:OnGathering()
 	end
 end
 
@@ -1618,7 +1627,7 @@ function Arh_MainFrame_OnHide()
 end
 
 local function RePositionDigSites_Minimap(self)
-	local x, y = GetPlayerMapPosition("player");
+	local x, y = addon:GetPos()
 	local dx=(x-0.5)*self:GetWidth();
 	local dy=(y-0.5)*self:GetHeight();
 	self:ClearAllPoints();
@@ -1791,9 +1800,8 @@ function Arh_HudFrame_OnUpdate(frame, elapsed)
 	--if last_update_hud > 0.05 then
 	if last_update_hud > 0 then
 
-		local px, py = GetPlayerMapPosition("player")
 		local pa = GetPlayerFacing()
-		local japx, japy = Arh_ToYards(px, py);
+		local japx, japy = addon:GetPosYards()
 		UpdateCons(japx, japy, pa)
 
 		if IsPlayerMoved(japx, japy, pa) then
