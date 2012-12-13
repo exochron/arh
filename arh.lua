@@ -1248,6 +1248,9 @@ end
 function addon:GetPos()
   local oldmap = GetCurrentMapAreaID()
   local oldlvl = GetCurrentMapDungeonLevel()
+  if WorldMapFrame then -- prevent map flicker
+    WorldMapFrame.blockWorldMapUpdate = true
+  end
   SetMapToCurrentZone();
   local level = GetCurrentMapDungeonLevel();
   local map = GetCurrentMapAreaID();
@@ -1255,6 +1258,9 @@ function addon:GetPos()
   SetMapByID(oldmap)
   if oldlvl and oldlvl > 0 then
     SetDungeonMapLevel(oldlvl)
+  end
+  if WorldMapFrame then
+    WorldMapFrame.blockWorldMapUpdate = nil
   end
   return x,y,map,level
 end
@@ -1761,15 +1767,14 @@ end
 local last_update_hud = 0
 function Arh_HudFrame_OnUpdate(frame, elapsed)
 	last_update_hud = last_update_hud + elapsed
-	--if last_update_hud > 0.05 then
-	if last_update_hud > 0 then
+	if last_update_hud > 0.05 then
 
 		local pa = GetPlayerFacing()
 		local japx, japy = addon:GetPosYards()
 		UpdateCons(japx, japy, pa)
 
-		if IsPlayerMoved(japx, japy, pa) then
-		end
+		-- if IsPlayerMoved(japx, japy, pa) then
+		-- end
 
 		Arh_UpdateHudFrameSizes()
 		
