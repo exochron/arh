@@ -1167,6 +1167,7 @@ local function AddCon(color, x, y, a)
 	SetVisible(ConsArray[ConsArraySize].texture_line, visible)
 
 	ConsArraySize = ConsArraySize+1
+	addon:UpdateCons(x,y,a)
 end
 
 local function UpdateConsSizes()
@@ -1240,7 +1241,7 @@ function Arh_UpdateAlphaEverything(color, isline)
 	end
 end
 
-local function UpdateCons(player_x, player_y, player_a)
+function addon:UpdateCons(player_x, player_y, player_a)
 	UpdateConsSizes() -- if minimap zoomed
 	UpdateConsPositions(player_x, player_y, player_a)
 end
@@ -1771,7 +1772,7 @@ function Arh_HudFrame_OnUpdate(frame, elapsed)
 
 		local pa = GetPlayerFacing()
 		local japx, japy = addon:GetPosYards()
-		UpdateCons(japx, japy, pa)
+		addon:UpdateCons(japx, japy, pa)
 
 		-- if IsPlayerMoved(japx, japy, pa) then
 		-- end
