@@ -1070,7 +1070,9 @@ local function PixelsInYardOnHud_Calc()
 	local mapSizePix = Arh_HudFrame:GetHeight()
 
 	local zoom = Minimap:GetZoom()
-	local indoors = GetCVar("minimapZoom")+0 == Minimap:GetZoom() and "outdoor" or "indoor"
+	--local indoors = GetCVar("minimapZoom")+0 == Minimap:GetZoom() and "outdoor" or "indoor"
+	local indoors = IsIndoors() and "indoor" or "outdoor"
+
 	local mapSizeYards = minimap_size[indoors][zoom]
 
 	return mapSizePix/mapSizeYards
@@ -1654,7 +1656,8 @@ function Arh_UpdateHudFrameSizes(force)
 	local UIParent_Height = UIParent:GetHeight()
 
 	local zoom = Minimap:GetZoom()
-	local indoors = GetCVar("minimapZoom")+0 == Minimap:GetZoom() and "outdoor" or "indoor"
+	--local indoors = GetCVar("minimapZoom")+0 == Minimap:GetZoom() and "outdoor" or "indoor"
+	local indoors = IsIndoors() and "indoor" or "outdoor"
 	local MinimapScale = minimap_scale[indoors][zoom]
 
 	if not force then
@@ -1665,7 +1668,7 @@ function Arh_UpdateHudFrameSizes(force)
 
 -- HUD Frame
 	Arh_HudFrame:SetScale(cfg.HUD.Scale)
-	local size = UIParent_Height / cfg.HUD.Scale
+	local size = UIParent_Height
 	Arh_HudFrame:SetSize(size, size)
 
 	local HudPixelsInYard = size / minimap_size[indoors][zoom]
