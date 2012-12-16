@@ -133,6 +133,9 @@ Arh_DefaultConfig =
 		ShowTooltips = true,
 		TooltipsScale = 1,
 		PlaySounds = 1,
+		posX = 0,
+		posY = 0,
+		point = "CENTER",
 	},
 	HUD =
 	{
@@ -174,15 +177,15 @@ BINDING_NAME_ARH_TOGGLEYELLOW = L["Show/Hide all %s areas"]:format(L["yellow"])
 BINDING_NAME_ARH_TOGGLEGREEN = 	L["Show/Hide all %s areas"]:format(L["green"])
 BINDING_NAME_ARH_BACK = L["Remove one previously added area"]
 
-local function Arh_UpdateSettings()
+function addon:ResetSettings()
 	local c
 
 -- MainFrame
-	Arh_MainFrame:ClearAllPoints()
-	Arh_MainFrame:SetPoint("CENTER")
 	SetVisible(Arh_MainFrame, cfg.MainFrame.Visible)
     Arh_MainFrame:SetScale(cfg.MainFrame.Scale)
 	Arh_MainFrame:SetAlpha(cfg.MainFrame.Alpha)
+	Arh_MainFrame:ClearAllPoints()
+	Arh_MainFrame:SetPoint("CENTER")
 
 -- HUD
 	-- Frame
@@ -212,6 +215,7 @@ local function Arh_UpdateSettings()
 
 -- Dig Sites
 	SetVisible(Arh_ArchaeologyDigSites_BattlefieldMinimap, cfg.DigSites.ShowOnBattlefieldMinimap)
+
 end
 
 local function SafeSetBinding(key, action)
@@ -265,7 +269,7 @@ local OptionsTable =
 						function()
 							Arh_Config = CopyByValue(Arh_DefaultConfig)
 							cfg = Arh_Config
-							Arh_UpdateSettings()
+							addon:ResetSettings()
 						end,
 			},
 			MainFrame =
@@ -1559,6 +1563,13 @@ function Arh_MainFrame_Init()
 	SetVisible(Arh_MainFrame, cfg.MainFrame.Visible)
 	Arh_MainFrame:SetScale(cfg.MainFrame.Scale)
 	Arh_MainFrame:SetAlpha(cfg.MainFrame.Alpha)
+	Arh_MainFrame:SetClampedToScreen(true)
+	Arh_MainFrame:ClearAllPoints()
+	if cfg.MainFrame.point then
+		Arh_MainFrame:SetPoint(cfg.MainFrame.point, cfg.MainFrame.posX, cfg.MainFrame.posY)
+	else
+		Arh_MainFrame:SetPoint("CENTER")
+	end
 
 	Arh_MainFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
 	SetTooltips()
@@ -1602,9 +1613,10 @@ end
 
 function Arh_MainFrame_OnMouseUp(self, button)
 	if button == "LeftButton" then
-		if Arh_MainFrame:IsMovable() and not cfg.MainFrame.Locked then
+		if MainFrameIsMoving then
 			MainFrameIsMoving = false
 			Arh_MainFrame:StopMovingOrSizing()
+			cfg.MainFrame.point, cfg.MainFrame.posX, cfg.MainFrame.posY = select(3,Arh_MainFrame:GetPoint(1))
 		end
 	elseif button == "RightButton" then
 	end
@@ -1612,8 +1624,7 @@ end
 
 function Arh_MainFrame_OnHide()
 	if MainFrameIsMoving then
-		MainFrameIsMoving = false
-		Arh_MainFrame:StopMovingOrSizing()
+		Arh_MainFrame_OnMouseUp(Arh_MainFrame, "LeftButton")
 	end
 end
 
