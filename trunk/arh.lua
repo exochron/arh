@@ -12,9 +12,9 @@ local Config = nil -- AceConfig-3.0
 
 local cfg = nil
 
-ARH_GREEN = 1
-ARH_YELLOW = 2
-ARH_RED = 3
+local ARH_GREEN = 1
+local ARH_YELLOW = 2
+local ARH_RED = 3
 
 local CONYARDS = {[ARH_GREEN] = 40, [ARH_YELLOW] = 80, [ARH_RED] = 640}
 
@@ -208,12 +208,7 @@ local function Arh_UpdateSettings()
     end
 	Arh_UpdateHudFrameSizes(true)
 	-- Annulus Sectors
-	Arh_UpdateAlphaEverything(ARH_RED, false)
-    Arh_UpdateAlphaEverything(ARH_YELLOW, false)
-	Arh_UpdateAlphaEverything(ARH_GREEN, false)
-	Arh_UpdateAlphaEverything(ARH_RED, true)
-	Arh_UpdateAlphaEverything(ARH_YELLOW, true)
-	Arh_UpdateAlphaEverything(ARH_GREEN, true)
+	addon:UpdateAlphaEverything()
 
 -- Dig Sites
 	SetVisible(Arh_ArchaeologyDigSites_BattlefieldMinimap, cfg.DigSites.ShowOnBattlefieldMinimap)
@@ -846,7 +841,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.RedSectAlpha = val
-										Arh_UpdateAlphaEverything(ARH_RED, false)
+										addon:UpdateAlphaEverything()
 									end,
 							},
 							RedLineAlpha =
@@ -863,7 +858,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.RedLineAlpha = val
-										Arh_UpdateAlphaEverything(ARH_RED, true)
+										addon:UpdateAlphaEverything()
 									end,
 							},
 							YellowSectAlpha =
@@ -880,7 +875,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.YellowSectAlpha = val
-										Arh_UpdateAlphaEverything(ARH_YELLOW, false)
+										addon:UpdateAlphaEverything()
 									end,
 							},
 							YellowLineAlpha =
@@ -897,7 +892,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.YellowLineAlpha = val
-										Arh_UpdateAlphaEverything(ARH_YELLOW, true)
+										addon:UpdateAlphaEverything()
 									end,
 							},
 							GreenSectAlpha =
@@ -914,7 +909,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.GreenSectAlpha = val
-										Arh_UpdateAlphaEverything(ARH_GREEN, false)
+										addon:UpdateAlphaEverything()
 									end,
 							},
 							GreenLineAlpha =
@@ -931,7 +926,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.GreenLineAlpha = val
-										Arh_UpdateAlphaEverything(ARH_GREEN, true)
+										addon:UpdateAlphaEverything()
 									end,
 							},
 						},
@@ -1107,53 +1102,53 @@ local function UpdateConAndLine(texture_con, texture_line, color)
 	texture_line:Show()
 end
 
-ConsCache = {[ARH_GREEN] = {["items"]={}, ["size"]=0}, [ARH_YELLOW] = {["items"]={}, ["size"]=0}, [ARH_RED] = {["items"]={}, ["size"]=0} }
-ConsArray = {}
-local ConsArraySize = 0
+addon.ConsCache = {[ARH_GREEN] = {}, [ARH_YELLOW] = {}, [ARH_RED] = {} }
+addon.ConsArray = {}
 local function GetCached(color)
-	if ConsCache[color].size > 0 then
-		ConsCache[color].size = ConsCache[color].size - 1
-		return ConsCache[color].items[ConsCache[color].size]
+	local cnt = #addon.ConsCache[color]
+	if cnt > 0 then
+		local ret = addon.ConsCache[color][cnt]
+		addon.ConsCache[color][cnt] = nil
+		return ret
 	else
 		return nil
 	end
 end
-function Arh_ReturnAllToCache()
-	for i=0,ConsArraySize-1 do
-		ConsArray[i].texture:Hide()
-		ConsArray[i].texture_line:Hide()
-		local c = ConsArray[i].color
-		local cs = ConsCache[c].size
-		ConsCache[c].items[cs] = {["texture"]=ConsArray[i].texture, ["texture_line"]=ConsArray[i].texture_line}
-		ConsCache[c].size = cs+1
+function addon:ReturnAllToCache()
+	for i=1,#addon.ConsArray do
+	  addon:ReturnLastToCache()
 	end
-	ConsArraySize = 0
 end
-function Arh_ReturnLastToCache()
-	if ConsArraySize==0 then return end
+function addon:ReturnLastToCache()
+	local cnt = #addon.ConsArray
+	if cnt==0 then return end
 
-	ConsArraySize = ConsArraySize-1
-	local i = ConsArraySize
+	local item = addon.ConsArray[cnt]
+	addon.ConsArray[cnt] = nil
 
-	ConsArray[i].texture:Hide()
-	ConsArray[i].texture_line:Hide()
-	local c = ConsArray[i].color
-	local cs = ConsCache[c].size
-	ConsCache[c].items[cs] = {["texture"]=ConsArray[i].texture, ["texture_line"]=ConsArray[i].texture_line}
-	ConsCache[c].size = cs+1
+	table.insert(addon.ConsCache[item.color], item)
+	item.texture:Hide()
+	item.texture_line:Hide()
+	item.x = nil
+	item.y = nil
+	item.a = nil
+	item.color = nil
 end
 
 
 local function AddCon(color, x, y, a)
 	local item = GetCached(color)
-	if item then
-		ConsArray[ConsArraySize] = {["color"]=color, ["texture"]=item.texture, ["texture_line"]=item.texture_line, ["x"]=x, ["y"]=y, ["a"]=a}
-		UpdateConAndLine(ConsArray[ConsArraySize].texture, ConsArray[ConsArraySize].texture_line, color)
-		
-	else
-		ConsArray[ConsArraySize] = {["color"]=color, ["texture"]=CreateCon(Arh_HudFrame, color), ["texture_line"]=nil, ["x"]=x, ["y"]=y, ["a"]=a}
-		ConsArray[ConsArraySize].texture_line = CreateLine(Arh_HudFrame, color, ConsArray[ConsArraySize].texture)
+	if not item then
+	  item = {}
+	  item.texture = CreateCon(Arh_HudFrame, color)
+	  item.texture_line = CreateLine(Arh_HudFrame, color, item.texture)
 	end
+	item.color = color
+	item.x = x
+	item.y = y
+	item.a = a
+	table.insert(addon.ConsArray,item)
+	UpdateConAndLine(item.texture, item.texture_line, color)
 
 	local visible
 	if color==ARH_RED then
@@ -1163,10 +1158,9 @@ local function AddCon(color, x, y, a)
 	elseif color==ARH_GREEN then
 		visible = not Arh_MainFrame_ButtonGreen.Canceled
 	end
-	SetVisible(ConsArray[ConsArraySize].texture, visible)
-	SetVisible(ConsArray[ConsArraySize].texture_line, visible)
+	SetVisible(item.texture, visible)
+	SetVisible(item.texture_line, visible)
 
-	ConsArraySize = ConsArraySize+1
 	addon:UpdateCons(x,y,a)
 end
 
@@ -1174,28 +1168,24 @@ local function UpdateConsSizes()
 	local piy = PixelsInYardOnHud_Calc()
 	if piy == PixelsInYardOnHud then return end
 	PixelsInYardOnHud = piy
-	for i=0,ConsArraySize-1 do
-		UpdateTextureSize(ConsArray[i].texture, ConsArray[i].color)
-		UpdateTextureSize(ConsArray[i].texture_line, ConsArray[i].color)
+	for _,item in ipairs(addon.ConsArray) do
+		UpdateTextureSize(item.texture, item.color)
+		UpdateTextureSize(item.texture_line, item.color)
 	end
 end
 
-local function PlaceCon(id, player_x, player_y, player_a)
-	local dx, dy = ConsArray[id].x-player_x, ConsArray[id].y-player_y
-	local cos, sin = math.cos(player_a), math.sin(player_a)
-	local x = dx*cos - dy*sin
-	local y = dx*sin + dy*cos
-
-	ConsArray[id].texture:ClearAllPoints()
-	ConsArray[id].texture:SetPoint("CENTER", Arh_HudFrame, "CENTER", x*PixelsInYardOnHud, -y*PixelsInYardOnHud)
-	RotateTexture(ConsArray[id].texture, ConsArray[id].a-player_a)
-
-	RotateTexture(ConsArray[id].texture_line, ConsArray[id].a-player_a)
-end
-
 local function UpdateConsPositions(player_x, player_y, player_a)
-	for i=0,ConsArraySize-1 do
-		PlaceCon(i, player_x, player_y, player_a)
+	local cos, sin = math.cos(player_a), math.sin(player_a)
+	for _,item in ipairs(addon.ConsArray) do
+		local dx, dy = item.x-player_x, item.y-player_y
+		local x = dx*cos - dy*sin
+		local y = dx*sin + dy*cos
+		local rot = item.a-player_a
+
+		item.texture:ClearAllPoints()
+		item.texture:SetPoint("CENTER", Arh_HudFrame, "CENTER", x*PixelsInYardOnHud, -y*PixelsInYardOnHud)
+		RotateTexture(item.texture, rot)
+		RotateTexture(item.texture_line, rot)
 	end
 end
 
@@ -1222,22 +1212,16 @@ function addon:UpdateAlpha(texture, color, isline)
 	texture:SetAlpha(a)
 end
 
-function Arh_UpdateAlphaEverything(color, isline)
-	for i=0,ConsArraySize-1 do
-		if color == ConsArray[i].color then
-			if isline then
-				addon:UpdateAlpha(ConsArray[i].texture_line, color, true)
-			else
-				addon:UpdateAlpha(ConsArray[i].texture, color, false)
-			end
-		end
+function addon:UpdateAlphaEverything()
+	for _,item in ipairs(addon.ConsArray) do
+		addon:UpdateAlpha(item.texture_line, item.color, true)
+		addon:UpdateAlpha(item.texture, item.color, false)
 	end
-	for i=0,ConsCache[color].size-1 do
-		if isline then
-			addon:UpdateAlpha(ConsCache[color].items[i].texture_line, color, true)
-		else
-			addon:UpdateAlpha(ConsCache[color].items[i].texture, color, false)
-		end
+	for color=ARH_GREEN,ARH_RED do
+	  for _,item in ipairs(addon.ConsCache[color]) do
+		addon:UpdateAlpha(item.texture_line, color, true)
+		addon:UpdateAlpha(item.texture, color, false)
+	  end
 	end
 end
 
@@ -1327,10 +1311,10 @@ function Arh_MainFrame_ButtonGreen_OnLClick()
 end
 
 local function ToggleColor(color, visible)
-	for i=0,ConsArraySize-1 do
-		if ConsArray[i].color == color then
-			SetVisible(ConsArray[i].texture, visible)
-			SetVisible(ConsArray[i].texture_line, visible)
+	for _,item in ipairs(addon.ConsArray) do
+		if item.color == color then
+			SetVisible(item.texture, visible)
+			SetVisible(item.texture_line, visible)
 		end
 	end
 end
@@ -1387,7 +1371,7 @@ function Arh_MainFrame_ButtonGreen_OnMouseDown(self, button)
 end
 
 function Arh_MainFrame_ButtonBack_OnLClick()
-	Arh_ReturnLastToCache()
+	addon:ReturnLastToCache()
 	PlaySound(SOUND_BACK)
 end
 
@@ -1401,10 +1385,10 @@ end
 function addon:SaveDifs()
 	local japx, japy = addon:GetPosYards()
 
-	for i=0,ConsArraySize-1 do
-		local jad = Distance(ConsArray[i].x, ConsArray[i].y, japx, japy)
+	for _,item in ipairs(addon.ConsArray) do
+		local jad = Distance(item.x, item.y, japx, japy)
 
-		local ra = CalcAngle(ConsArray[i].x, ConsArray[i].y, japx, japy)
+		local ra = CalcAngle(item.x, item.y, japx, japy)
 		local ad = ra-a
 		while ad > 2*math.pi do ad = ad - 2*math.pi end
 		while ad < 0 do ad = ad + 2*math.pi end
@@ -1413,14 +1397,14 @@ function addon:SaveDifs()
 		if Arh_Data == nil then
 			Arh_Data = {["next"]=1, ["items"]={}}
 		end
-		Arh_Data.items[Arh_Data.next] = {[1]=ConsArray[i].color, [2]=jad, [3]=ad}
+		Arh_Data.items[Arh_Data.next] = {[1]=item.color, [2]=jad, [3]=ad}
 		Arh_Data.next = Arh_Data.next + 1
 	end
 end
 
 function addon:OnGathering()
 --	addon:SaveDifs()
-	Arh_ReturnAllToCache()
+	addon:ReturnAllToCache()
 	ToggleColorButton(Arh_MainFrame_ButtonRed, ARH_RED, true)
 	ToggleColorButton(Arh_MainFrame_ButtonYellow, ARH_YELLOW, true)
 	ToggleColorButton(Arh_MainFrame_ButtonGreen, ARH_GREEN, true)
@@ -1502,7 +1486,7 @@ local function handler(msg, editbox)
 	elseif msg=='back' or msg=='b' then
 		Arh_MainFrame_ButtonBack_OnLClick()
 	elseif msg=='clear' or msg=='c' then
-		Arh_ReturnAllToCache()
+		addon:ReturnAllToCache()
 
 
 	elseif msg=='minimap' or msg=='mm' then
