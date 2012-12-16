@@ -1016,11 +1016,12 @@ local function SetTooltips()
 	Arh_MainFrame_ButtonBack.TooltipText = cs(L["Left Click"])..": "..L["remove one previously added area"]
 end
 
-local function RotateTexture(texture, angle)
+local function RotateTexture(item, angle)
 	local cos, sin = math.cos(angle), math.sin(angle)
 	local p, m = (sin+cos)/2, (sin-cos)/2
 	local pp, pm, mp, mm = 0.5+p, 0.5+m, 0.5-p, 0.5-m
-	texture:SetTexCoord(pm, mp, mp, mm, pp, pm, mm, pp)
+	item.texture:SetTexCoord(pm, mp, mp, mm, pp, pm, mm, pp)
+	item.texture_line:SetTexCoord(pm, mp, mp, mm, pp, pm, mm, pp)
 end
 
 local function CreateConTexture(parent, color)
@@ -1190,8 +1191,7 @@ local function UpdateConsPositions(player_x, player_y, player_a)
 
 		item.texture:ClearAllPoints()
 		item.texture:SetPoint("CENTER", Arh_HudFrame, "CENTER", x*PixelsInYardOnHud, -y*PixelsInYardOnHud)
-		RotateTexture(item.texture, rot)
-		RotateTexture(item.texture_line, rot)
+		RotateTexture(item, rot)
 	end
 end
 
