@@ -1017,6 +1017,8 @@ local function SetTooltips()
 end
 
 local function RotateTexture(item, angle)
+	--item.texture:SetRotation(angle)
+	--item.texture_line:SetRotation(angle)
 	local cos, sin = math.cos(angle), math.sin(angle)
 	local p, m = (sin+cos)/2, (sin-cos)/2
 	local pp, pm, mp, mm = 0.5+p, 0.5+m, 0.5-p, 0.5-m
@@ -1171,17 +1173,18 @@ local function AddCon(color, x, y, a)
 	addon:UpdateCons(x,y,a)
 end
 
-local function UpdateConsSizes()
+function addon:UpdateConsSizes()
 	local piy = PixelsInYardOnHud_Calc()
 	if piy == PixelsInYardOnHud then return end
 	PixelsInYardOnHud = piy
+	--print("UpdateConsSizes")
 	for _,item in ipairs(addon.ConsArray) do
 		UpdateTextureSize(item.texture, item.color)
 		UpdateTextureSize(item.texture_line, item.color)
 	end
 end
 
-local function UpdateConsPositions(player_x, player_y, player_a)
+function addon:UpdateConsPositions(player_x, player_y, player_a)
 	local cos, sin = math.cos(player_a), math.sin(player_a)
 	for _,item in ipairs(addon.ConsArray) do
 		local dx, dy = item.x-player_x, item.y-player_y
@@ -1189,7 +1192,7 @@ local function UpdateConsPositions(player_x, player_y, player_a)
 		local y = dx*sin + dy*cos
 		local rot = item.a-player_a
 
-		item.texture:ClearAllPoints()
+		--item.texture:ClearAllPoints()
 		item.texture:SetPoint("CENTER", Arh_HudFrame, "CENTER", x*PixelsInYardOnHud, -y*PixelsInYardOnHud)
 		RotateTexture(item, rot)
 	end
@@ -1232,8 +1235,8 @@ function addon:UpdateAlphaEverything()
 end
 
 function addon:UpdateCons(player_x, player_y, player_a)
-	UpdateConsSizes() -- if minimap zoomed
-	UpdateConsPositions(player_x, player_y, player_a)
+	addon:UpdateConsSizes() -- if minimap zoomed
+	addon:UpdateConsPositions(player_x, player_y, player_a)
 end
 
 function addon:GetPos()
@@ -1246,7 +1249,9 @@ function addon:GetPos()
   local level = GetCurrentMapDungeonLevel();
   local map = GetCurrentMapAreaID();
   local x, y = GetPlayerMapPosition("player")
-  SetMapByID(oldmap)
+  if oldmap ~= map then
+    SetMapByID(oldmap)
+  end
   if oldlvl and oldlvl > 0 then
     SetDungeonMapLevel(oldlvl)
   end
@@ -1665,6 +1670,7 @@ function Arh_UpdateHudFrameSizes(force)
 	end
 	MinimapScale_old = MinimapScale
 	UIParent_Height_old = UIParent_Height
+	--print("Arh_UpdateHudFrameSizes")
 
 -- HUD Frame
 	Arh_HudFrame:SetScale(cfg.HUD.Scale)
