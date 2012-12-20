@@ -1795,16 +1795,41 @@ function Arh_HudFrame_OnUpdate(frame, elapsed)
 	end
 end
 
+local vishooked
+local GMonHud
+local function DisableNonArchPins()
+  if not GatherMate2 then return end
+  if GMonHud then
+    local v = GatherMate2.Visible
+    if not v then return end
+    for i,_ in pairs(v) do
+      v[i] = false
+    end
+    v["Archaeology"] = true
+  end
+end
+
 local OriginalRotationFlag
 local function UseGatherMate2(use)
 	if not GatherMate2 then return end
+	local Display = GatherMate2:GetModule("Display")
+	if not Display then return end
+	if not vishooked and Display.UpdateVisibility then
+		hooksecurefunc(Display, "UpdateVisibility", DisableNonArchPins)
+		vishooked = true
+	end
 	if use then
 		OriginalRotationFlag = GetCVar("rotateMinimap")
-		GatherMate2:GetModule("Display"):ReparentMinimapPins(Arh_HudFrame)
-		GatherMate2:GetModule("Display"):ChangedVars(nil, "ROTATE_MINIMAP", "1")
+		Display:ReparentMinimapPins(Arh_HudFrame)
+		Display:ChangedVars(nil, "ROTATE_MINIMAP", "1")
+		GMonHud = true
 	else
-		GatherMate2:GetModule("Display"):ReparentMinimapPins(Minimap)
-		GatherMate2:GetModule("Display"):ChangedVars(nil, "ROTATE_MINIMAP", OriginalRotationFlag)
+		Display:ReparentMinimapPins(Minimap)
+		Display:ChangedVars(nil, "ROTATE_MINIMAP", OriginalRotationFlag)
+		GMonHud = false
+	end
+	if Display.UpdateMaps then
+	  Display:UpdateMaps()
 	end
 end
 
