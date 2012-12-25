@@ -1850,6 +1850,7 @@ function Arh_HudFrame_OnShow(self)
 	if cfg.HUD.UseGatherMate2 then
 		UseGatherMate2(true)
 	end
+	Arh_HudFrame_OnUpdate(nil, 100) -- force an update to prevent a flicker
 end
 function Arh_HudFrame_OnHide(self)
 	if cfg.HUD.UseGatherMate2 then
