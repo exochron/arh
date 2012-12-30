@@ -104,18 +104,41 @@ local function PlaySound(soundfile)
 	end
 end
 
-local function ToggleMainFrame(enable)
+function addon:ToggleMainFrame(enable)
 	if enable ~= nil then
 		cfg.MainFrame.Visible = enable
 	else
 		cfg.MainFrame.Visible = not Arh_MainFrame:IsVisible()
 	end
 	SetVisible(Arh_MainFrame, cfg.MainFrame.Visible)
+	addon:ToggleHUD(cfg.MainFrame.Visible)
 	if cfg.MainFrame.Visible then
 		PlaySound(SOUND_SHOWMAINFRAME)
 	else
 		PlaySound(SOUND_HIDEMAINFRAME)
 	end
+end
+
+function addon:ToggleHUD(enable)
+	if enable ~= nil then
+		cfg.HUD.Visible = enable
+	else
+		cfg.HUD.Visible = not Arh_HudFrame:IsVisible()
+	end
+	Arh_MainFrame_ButtonDig.Canceled = not cfg.HUD.Visible
+	SetVisible(Arh_MainFrame_ButtonDig.CanceledTexture, not cfg.HUD.Visible)
+	SetVisible(Arh_HudFrame, cfg.HUD.Visible)
+	--[[
+	if cfg.HUD.Visible then
+		PlaySound(SOUND_SHOWMAINFRAME)
+	else
+		PlaySound(SOUND_HIDEMAINFRAME)
+	end
+	--]]
+end
+
+function Arh_MainFrame_ButtonDig_OnRClick()
+	addon:ToggleHUD()
 end
 
 local function cs(str)
@@ -139,6 +162,7 @@ Arh_DefaultConfig =
 	},
 	HUD =
 	{
+		Visible = true,
 		UseGatherMate2 = true,
 		Scale = 1,
 		Alpha = 1,
@@ -212,6 +236,7 @@ function addon:ResetSettings()
 	Arh_UpdateHudFrameSizes(true)
 	-- Annulus Sectors
 	addon:UpdateAlphaEverything()
+	addon:ToggleHUD(cfg.HUD.Visible)
 
 -- Dig Sites
 	SetVisible(Arh_ArchaeologyDigSites_BattlefieldMinimap, cfg.DigSites.ShowOnBattlefieldMinimap)
@@ -312,7 +337,7 @@ local OptionsTable =
 								get = function(info) return cfg.MainFrame.Visible end,
 								set =
 									function(info, val)
-										ToggleMainFrame(val)
+										addon:ToggleMainFrame(val)
 									end,
 							},
 							locked =
@@ -1422,11 +1447,6 @@ function addon:OnGathering()
 --	PlaySound(SOUND_GATHERING)
 end
 
-function Arh_MainFrame_ButtonDig_OnRClick()
-	Arh_MainFrame_ButtonDig.Canceled = not Arh_MainFrame_ButtonDig.Canceled
-	SetVisible(Arh_MainFrame_ButtonDig.CanceledTexture, Arh_MainFrame_ButtonDig.Canceled)
-	SetVisible(Arh_HudFrame, not Arh_MainFrame_ButtonDig.Canceled)
-end
 
 local function ShowArchaeologyFrame()
 	if IsAddOnLoaded("Blizzard_ArchaeologyUI") then
@@ -1475,9 +1495,9 @@ local function handler(msg, editbox)
 	if msg=='' then
 		OnHelp()
 	elseif msg=='toggle' or msg=='t' then
-		ToggleMainFrame()
+		addon:ToggleMainFrame()
 	elseif msg=='hud' or msg=='h' then
-		Arh_MainFrame_ButtonDig_OnRClick()
+		addon:ToggleHUD()
 
 	elseif msg=='addred' or msg=='ar' then
 		Arh_MainFrame_ButtonRed_OnLClick()
@@ -1531,8 +1551,8 @@ local function OnAddonLoaded(name)
 			Arh_Config = GetNewestStructure(Arh_Config, Arh_DefaultConfig)
 		end
 		cfg = Arh_Config
-		Arh_MainFrame_Init()
 		Arh_HudFrame_Init()
+		Arh_MainFrame_Init()
 	end
 end
 
@@ -1595,9 +1615,8 @@ function Arh_MainFrame_Init()
 	InitCancelableButton(Arh_MainFrame_ButtonDig)
 
 	Arh_MainFrame_ButtonDig.CanceledTexture:SetSize(30, 30)
-	Arh_MainFrame_ButtonDig.CanceledTexture:Show()
-	Arh_MainFrame_ButtonDig.Canceled = true
 	Arh_MainFrame_ButtonDig:SetAttribute("spell", GetSpellInfo(80451))
+	addon:ToggleHUD(cfg.HUD.Visible)
 
 	Arh_MainFrame_ButtonRed:SetHitRectInsets(6,6,6,6)
 	Arh_MainFrame_ButtonYellow:SetHitRectInsets(6,6,6,6)
