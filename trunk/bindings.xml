@@ -1,6 +1,7 @@
 <Bindings>
 	<Binding name="CLICK Arh_MainFrame_ButtonDig:LeftButton" header="ARH"> </Binding>
-	<Binding name="ARH_TOGGLEHUD"> Arh_MainFrame_ButtonDig_OnRClick() </Binding>
+	<Binding name="ARH_TOGGLEMAIN"> Arh:ToggleMainFrame() </Binding>
+	<Binding name="ARH_TOGGLEHUD"> Arh:ToggleHUD() </Binding>
 	<Binding name="ARH_SHOWARCHAEOLOGYFRAME"> ShowArchaeologyFrame() </Binding>
 	<Binding name="ARH_ADDRED"> Arh_MainFrame_ButtonRed_OnLClick() </Binding>
 	<Binding name="ARH_ADDYELLOW"> Arh_MainFrame_ButtonYellow_OnLClick() </Binding>

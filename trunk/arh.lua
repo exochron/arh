@@ -137,10 +137,6 @@ function addon:ToggleHUD(enable)
 	--]]
 end
 
-function Arh_MainFrame_ButtonDig_OnRClick()
-	addon:ToggleHUD()
-end
-
 local function cs(str)
 	return "|cffffff78"..str.."|r"
 end
@@ -190,9 +186,9 @@ Arh_DefaultConfig =
 
 BINDING_HEADER_ARH = L["Archaeology Helper"]
 _G["BINDING_NAME_CLICK Arh_MainFrame_ButtonDig:LeftButton"] = L["Cast Survey"]
+BINDING_NAME_ARH_TOGGLEMAIN = L["Show/Hide the Main Window"]
 BINDING_NAME_ARH_TOGGLEHUD = L["Show/Hide the HUD"]
 BINDING_NAME_ARH_SHOWARCHAEOLOGYFRAME = L["Open archaeology window"]
-BINDING_NAME_ARH_PROF = L["Show/Hide the HUD"]
 BINDING_NAME_ARH_ADDRED = 	L["Add %s area to the HUD"]:format(L["red"])
 BINDING_NAME_ARH_ADDYELLOW = 	L["Add %s area to the HUD"]:format(L["yellow"])
 BINDING_NAME_ARH_ADDGREEN = 	L["Add %s area to the HUD"]:format(L["green"])
@@ -462,13 +458,29 @@ local OptionsTable =
 											SafeSetBinding(v, "CLICK Arh_MainFrame_ButtonDig:LeftButton")
 										end
 							},
+							ToggleMainKeyBinding =
+							{
+								order = 1.5,
+								width = "full",
+								type = "keybinding",
+								name = BINDING_NAME_ARH_TOGGLEMAIN,
+								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh t|r"),
+								get =
+										function()
+											return GetBindingKey("ARH_TOGGLEMAIN")
+										end,
+								set =
+										function(info, v)
+											SafeSetBinding(v, "ARH_TOGGLEMAIN")
+										end
+							},
 							ToggleHudKeyBinding =
 							{
 								order = 2,
 								width = "full",
 								type = "keybinding",
 								name = BINDING_NAME_ARH_TOGGLEHUD,
-								desc = L["You can also use |cff69ccf0/arh h|r command for this action"],
+								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh h|r"),
 								get =
 										function()
 											return GetBindingKey("ARH_TOGGLEHUD")
@@ -988,7 +1000,7 @@ local OptionsTable =
 					{
 						order = 2,
 						name = L["Show digsites on the Minimap"],
-						desc = L["You can also use |cff69ccf0/arh mm|r command to toggle this option"],
+						desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh mm|r"),
 						type = "toggle",
 						width = "full",
 						get = function(info) return addon:GetDigsiteTracking() end,
@@ -1466,7 +1478,7 @@ end
 function Arh_MainFrame_ButtonDig_OnMouseDown(self, button)
 	if button == "LeftButton" then
 	elseif button == "RightButton" then
-		Arh_MainFrame_ButtonDig_OnRClick()
+		addon:ToggleHUD()
 	elseif button == "MiddleButton" then
 		ShowArchaeologyFrame()
 	end
