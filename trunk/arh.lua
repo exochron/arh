@@ -149,6 +149,7 @@ function addon:ToggleHUD(enable)
 	Arh_MainFrame_ButtonDig.Canceled = not cfg.HUD.Visible
 	SetVisible(Arh_MainFrame_ButtonDig.CanceledTexture, not cfg.HUD.Visible)
 	SetVisible(Arh_HudFrame, cfg.HUD.Visible)
+        addon.suppress = false -- manual override disables suppression
 	--[[
 	if cfg.HUD.Visible then
 		PlaySound(SOUND_SHOWMAINFRAME)
@@ -156,6 +157,32 @@ function addon:ToggleHUD(enable)
 		PlaySound(SOUND_HIDEMAINFRAME)
 	end
 	--]]
+end
+
+function addon:CheckSuppress()
+  local shouldsuppress = false
+  if UnitIsGhost("player") or 
+     UnitInBattleground("player") or 
+     UnitInVehicle("player") or
+     IsInInstance() or
+     (C_PetBattles and C_PetBattles.IsInBattle()) or -- in pet battle
+     not select(3,GetProfessions()) -- lacks archaeology
+     then
+    shouldsuppress = true
+  elseif cfg.MainFrame.HideCombat and (InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+    shouldsuppress = true
+  elseif cfg.MainFrame.HideResting and IsResting() then
+    shouldsuppress = true
+  end
+  if shouldsuppress and not addon.suppress then -- begin suppress
+    SetVisible(Arh_MainFrame, false)
+    SetVisible(Arh_HudFrame, false)
+    addon.suppress = true  
+  elseif not shouldsuppress and addon.suppress then -- end suppress
+    SetVisible(Arh_MainFrame, cfg.MainFrame.Visible)
+    SetVisible(Arh_HudFrame, cfg.HUD.Visible)
+    addon.suppress = false
+  end
 end
 
 local function cs(str)
@@ -168,6 +195,8 @@ Arh_DefaultConfig =
 	{
 		Visible = true,
 		FollowArchy = true,
+		HideCombat = false,
+		HideResting = true,
 		Locked = false,
 		Scale = 1,
 		Alpha = 1,
@@ -367,6 +396,24 @@ local OptionsTable =
 								disabled = function(info) return not Archy end,
 								get = function(info) return cfg.MainFrame.FollowArchy end,
 								set = function(info, val) cfg.MainFrame.FollowArchy = val end,
+							},
+							hidecombat =
+							{
+								order = 2.7,
+								name = L["Hide on combat"],
+								desc = L["Hide on combat"],
+								type = "toggle",
+								get = function(info) return cfg.MainFrame.HideCombat end,
+								set = function(info, val) cfg.MainFrame.HideCombat = val end,
+							},
+							hideresting =
+							{
+								order = 2.9,
+								name = L["Hide when resting"],
+								desc = L["Hide when resting"],
+								type = "toggle",
+								get = function(info) return cfg.MainFrame.HideResting end,
+								set = function(info, val) cfg.MainFrame.HideResting = val end,
 							},
 							locked =
 							{
@@ -1606,6 +1653,8 @@ function Arh_MainFrame_OnEvent(self, event, ...)
 		OnAddonLoaded(...)
 	elseif event == "UNIT_SPELLCAST_SENT" then
 		OnSpellSent(...)
+	else
+		addon:CheckSuppress()
 	end
 end
 
@@ -1644,6 +1693,13 @@ function Arh_MainFrame_Init()
 	end
 
 	Arh_MainFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
+	for _,evt in pairs({ "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA",
+	                     "PLAYER_UPDATE_RESTING", "PLAYER_ALIVE", "PLAYER_DEAD",
+			     "PET_BATTLE_OPENING_START", "PET_BATTLE_CLOSE", "PET_BATTLE_OVER",
+			     "UNIT_ENTERED_VEHICLE", "UNIT_EXITED_VEHICLE",
+			     "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED" }) do
+		Arh_MainFrame:RegisterEvent(evt)
+	end
 	SetTooltips()
 
 	if BattlefieldMinimap then
@@ -1662,6 +1718,7 @@ function Arh_MainFrame_Init()
 	Arh_MainFrame_ButtonDig.CanceledTexture:SetSize(30, 30)
 	Arh_MainFrame_ButtonDig:SetAttribute("spell", GetSpellInfo(80451))
 	addon:ToggleHUD(cfg.HUD.Visible)
+	addon:CheckSuppress()
 
 	Arh_MainFrame_ButtonRed:SetHitRectInsets(6,6,6,6)
 	Arh_MainFrame_ButtonYellow:SetHitRectInsets(6,6,6,6)
