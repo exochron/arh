@@ -1814,7 +1814,7 @@ function Arh_HudFrame_OnUpdate(frame, elapsed)
 	end
 end
 
-local vishooked
+local vishooked, enablehooked
 local GMonHud
 local function DisableNonArchPins()
   if not GatherMate2 then return end
@@ -1833,6 +1833,13 @@ local function UseGatherMate2(use)
 	if not GatherMate2 then return end
 	local Display = GatherMate2:GetModule("Display")
 	if not Display then return end
+	if use and not Display:IsEnabled() or not Display.updateFrame then -- ticket 36: before Display:OnEnable()
+	  if not enablehooked and Display.OnEnable then
+		hooksecurefunc(Display, "OnEnable", function() UseGatherMate2(use) end)
+		enablehooked = true
+	  end
+	  return
+	end
 	if not vishooked and Display.UpdateVisibility then
 		hooksecurefunc(Display, "UpdateVisibility", DisableNonArchPins)
 		vishooked = true
