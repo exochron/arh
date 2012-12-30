@@ -104,6 +104,27 @@ local function PlaySound(soundfile)
 	end
 end
 
+local function ArchyShown()
+  return Archy and Archy.db and Archy.db.profile and Archy.db.profile.general and Archy.db.profile.general.show
+end
+
+local function ArchyUpdate()
+  local shown = ArchyShown()
+  if addon.archy_state == shown then return end -- no change
+  addon.archy_state = shown
+  local follow = cfg and cfg.MainFrame and cfg.MainFrame.FollowArchy
+  if not follow then return end -- disabled
+  addon:ToggleMainFrame(shown)
+end
+
+function addon:HookArchy()
+  if Archy and Archy.ConfigUpdated and not addon.archy_hooked then
+    hooksecurefunc(Archy, "ConfigUpdated", ArchyUpdate)
+    addon.archy_hooked = true
+    addon.archy_state = ArchyShown()
+  end
+end
+
 function addon:ToggleMainFrame(enable)
 	if enable ~= nil then
 		cfg.MainFrame.Visible = enable
@@ -146,6 +167,7 @@ Arh_DefaultConfig =
 	MainFrame =
 	{
 		Visible = true,
+		FollowArchy = true,
 		Locked = false,
 		Scale = 1,
 		Alpha = 1,
@@ -335,6 +357,16 @@ local OptionsTable =
 									function(info, val)
 										addon:ToggleMainFrame(val)
 									end,
+							},
+							archy =
+							{
+								order = 2.5,
+								name = L["Toggle with Archy"],
+								desc = L["Show/Hide window when you show/hide Archy addon"],
+								type = "toggle",
+								disabled = function(info) return not Archy end,
+								get = function(info) return cfg.MainFrame.FollowArchy end,
+								set = function(info, val) cfg.MainFrame.FollowArchy = val end,
 							},
 							locked =
 							{
@@ -1566,6 +1598,7 @@ local function OnAddonLoaded(name)
 		Arh_HudFrame_Init()
 		Arh_MainFrame_Init()
 	end
+	addon:HookArchy()
 end
 
 function Arh_MainFrame_OnEvent(self, event, ...)
