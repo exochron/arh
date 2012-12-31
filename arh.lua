@@ -246,6 +246,7 @@ Arh_DefaultConfig =
 	Minimap =
 	{
 		hide = false,
+		minimapPos = 0,
 	},
 }
 
