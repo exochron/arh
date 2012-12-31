@@ -195,6 +195,18 @@ function addon:Config()
     end
 end
 
+function addon:ToggleArch()
+  if not IsAddOnLoaded("Blizzard_ArchaeologyUI") then
+    local loaded, reason = LoadAddOn("Blizzard_ArchaeologyUI")
+    if not loaded then return end
+  end
+  if ArchaeologyFrame:IsShown() then
+    HideUIPanel(ArchaeologyFrame)
+  else
+    ShowUIPanel(ArchaeologyFrame)
+  end
+end
+
 local function cs(str)
 	return "|cffffff78"..str.."|r"
 end
@@ -1141,9 +1153,9 @@ local function SetTooltips()
 	Arh_MainFrame.TooltipText =
 		function(self)
 			if cfg.MainFrame.Locked then
-				return cs(L["Right Click"])..": "..L["open configuration page"]
+				return cs(L["Right Click"])..": "..L["Show/Hide Config"]
 			else
-				return cs(L["Left Click"])..": "..L["move window"].."\n"..cs(L["Right Click"])..": "..L["open configuration page"]
+				return cs(L["Left Click"])..": "..L["move window"].."\n"..cs(L["Right Click"])..": "..L["Show/Hide Config"]
 			end
 		end
 	Arh_MainFrame_ButtonRed.TooltipText = cs(L["Left Click"])..": "..L["add new %s zone to the HUD"]:format(L["red"]).."\n"..
@@ -1153,8 +1165,8 @@ local function SetTooltips()
 	Arh_MainFrame_ButtonGreen.TooltipText = cs(L["Left Click"])..": "..L["add new %s zone to the HUD"]:format(L["green"]).."\n"..
                                                 cs(L["Right Click"])..": "..L["show/hide all %s areas on the HUD"]:format(L["green"])
 	Arh_MainFrame_ButtonDig.TooltipText = cs(L["Left Click"])..": "..L["cast Survey"].."\n"..
-                                              cs(L["Right Click"])..": "..L["show/hide HUD window"].."\n"..
-                                              cs(L["Middle Click"])..": "..L["open archaeology window"]
+                                              cs(L["Right Click"])..": "..L["Show/Hide the HUD"].."\n"..
+                                              cs(L["Middle Click"])..": "..L["Open archaeology window"]
 	Arh_MainFrame_ButtonBack.TooltipText = cs(L["Left Click"])..": "..L["remove one previously added area"]
 end
 
@@ -1565,27 +1577,12 @@ function addon:OnGathering()
 end
 
 
-local function ShowArchaeologyFrame()
-	if IsAddOnLoaded("Blizzard_ArchaeologyUI") then
-		ShowUIPanel(ArchaeologyFrame)
-		return true
-	else
-		local loaded, reason = LoadAddOn("Blizzard_ArchaeologyUI")
-		if loaded then
-			ShowUIPanel(ArchaeologyFrame)
-			return true
-		else
-			return false
-		end
-	end
-end
-
 function Arh_MainFrame_ButtonDig_OnMouseDown(self, button)
 	if button == "LeftButton" then
 	elseif button == "RightButton" then
 		addon:ToggleHUD()
 	elseif button == "MiddleButton" then
-		ShowArchaeologyFrame()
+		addon:ToggleArch()
 	end
 end
 
@@ -1594,8 +1591,8 @@ local function OnHelp()
 		return cs(str1)..", "..cs(str2)
 	end
 	print("Arguments to "..cs("/arh")..":")
-	print("  "..os("toggle","t").." - "..L["hide/show main window"])
-	print("  "..os("hud","h").." - "..L["hide/show HUD window"])
+	print("  "..os("toggle","t").." - "..L["Show/Hide the Main Window"])
+	print("  "..os("hud","h").." - "..L["Show/Hide the HUD"])
 	print("  "..os("addred","ar").." - "..	 	L["add new %s zone to the HUD"]:format(L["red"]))
 	print("  "..os("addyellow","ay").." - "..	L["add new %s zone to the HUD"]:format(L["yellow"]))
 	print("  "..os("addgreen","ag").." - ".. 	L["add new %s zone to the HUD"]:format(L["green"]))
@@ -1605,7 +1602,7 @@ local function OnHelp()
 	print("  "..os("back","b").." - "..L["remove one previously added area"])
 	print("  "..os("clear","c").." - "..L["clear HUD"])
 	print("  "..os("minimap","mm").." - "..L["show/hide digsites on minimap"])
-	print("  "..os("config","co").." - "..L["show/hide config options"])
+	print("  "..os("config","co").." - "..L["Show/Hide Config"])
 end
 
 local function handler(msg, editbox)
@@ -1714,15 +1711,15 @@ function Arh_MainFrame_Init()
                   elseif button == "RightButton" then
                         addon:Config()
                   else
-		  	ShowArchaeologyFrame()
+		  	addon:ToggleArch()
                   end
          	end,
         	OnTooltipShow = function(tooltip)
                   if tooltip and tooltip.AddLine then
                         tooltip:SetText(addonName)
-                        tooltip:AddLine(cs(L["Left Click"])..": "..L["hide/show main window"])
-                        tooltip:AddLine(cs(L["Right Click"])..": "..L["open configuration page"])
-                        tooltip:AddLine(cs(L["Middle Click"])..": "..L["open archaeology window"])
+                        tooltip:AddLine(cs(L["Left Click"])..": "..L["Show/Hide the Main Window"])
+                        tooltip:AddLine(cs(L["Right Click"])..": "..L["Show/Hide Config"])
+                        tooltip:AddLine(cs(L["Middle Click"])..": "..L["Open archaeology window"])
                         tooltip:Show()
                   end
         	end,
@@ -1791,7 +1788,7 @@ function Arh_MainFrame_OnMouseDown(self, button)
 			MainFrameIsMoving = true
 		end
 	elseif button == "RightButton" then
-		InterfaceOptionsFrame_OpenToCategory("Arh")
+		addon:Config()
 	end
 end
 
