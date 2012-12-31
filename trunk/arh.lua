@@ -217,7 +217,7 @@ Arh_DefaultConfig =
 	{
 		Visible = true,
 		FollowArchy = true,
-		HideCombat = false,
+		HideCombat = true,
 		HideResting = true,
 		Locked = false,
 		Scale = 1,
