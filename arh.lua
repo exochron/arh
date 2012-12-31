@@ -9,6 +9,8 @@ svnrev["Arh.lua"] = tonumber(("$Revision$"):match("%d+"))
 
 local MapData = nil
 local Config = nil -- AceConfig-3.0
+local minimapIcon = LibStub("LibDBIcon-1.0")
+local LDB, LDBo
 
 local cfg = nil
 
@@ -185,6 +187,14 @@ function addon:CheckSuppress()
   end
 end
 
+function addon:Config()
+    if InterfaceOptionsFrame:IsShown() then
+        InterfaceOptionsFrame:Hide()
+    else
+	InterfaceOptionsFrame_OpenToCategory("Arh")
+    end
+end
+
 local function cs(str)
 	return "|cffffff78"..str.."|r"
 end
@@ -232,6 +242,10 @@ Arh_DefaultConfig =
 	DigSites =
 	{
 		ShowOnBattlefieldMinimap = true,
+	},
+	Minimap =
+	{
+		hide = false,
 	},
 }
 
@@ -427,6 +441,17 @@ local OptionsTable =
 										cfg.MainFrame.Locked = val
 									end,
 							},
+      							minimap = {
+        							order = 3.5,
+        							name = L["Minimap Icon"],
+        							desc = L["Display minimap icon"],
+        							type = "toggle",
+        							set = function(info,val)
+          								cfg.Minimap.hide = not val
+									minimapIcon:Update()
+        							end,
+        							get = function() return not cfg.Minimap.hide end,
+      							},
 							scale =
 							{
 								order = 4,
@@ -1614,11 +1639,7 @@ local function handler(msg, editbox)
 	elseif msg=='minimap' or msg=='mm' then
 		addon:SetDigsiteTracking(not addon:GetDigsiteTracking())
 	elseif msg=='config' or msg=='co' then
-	    if InterfaceOptionsFrame:IsShown() then
-	        InterfaceOptionsFrame:Hide()
-	    else
-		InterfaceOptionsFrame_OpenToCategory("Arh")
-	    end
+		addon:Config()
 	else
 		print("unknown command: "..msg)
 		print("use |cffffff78/arh|r for help on commands")
@@ -1680,6 +1701,40 @@ function Arh_MainFrame_Init()
 	ConfigDialog = LibStub("AceConfigDialog-3.0")
 	Config:RegisterOptionsTable("Archaeology Helper", OptionsTable, "arhcfg")
 	ConfigDialog:AddToBlizOptions("Archaeology Helper", "Arh")
+
+	LDB = LibStub:GetLibrary("LibDataBroker-1.1",true)
+   	LDBo = LDB:NewDataObject(addonName, {
+        	type = "launcher",
+        	label = addonName,
+        	icon = "Interface\\Icons\\inv_misc_shovel_01",
+        	OnClick = function(self, button)
+		  if button == "LeftButton" then
+			addon:ToggleMainFrame()
+                  elseif button == "RightButton" then
+                        addon:Config()
+                  else
+		  	ShowArchaeologyFrame()
+                  end
+         	end,
+        	OnTooltipShow = function(tooltip)
+                  if tooltip and tooltip.AddLine then
+                        tooltip:SetText(addonName)
+                        tooltip:AddLine(cs(L["Left Click"])..": "..L["hide/show main window"])
+                        tooltip:AddLine(cs(L["Right Click"])..": "..L["open configuration page"])
+                        tooltip:AddLine(cs(L["Middle Click"])..": "..L["open archaeology window"])
+                        tooltip:Show()
+                  end
+        	end,
+     	})
+
+    	minimapIcon:Register(addonName, LDBo, cfg.Minimap)
+	minimapIcon.Update = function()
+	    if cfg.Minimap.hide then
+      		minimapIcon:Hide(addonName)
+    	    else
+     		minimapIcon:Show(addonName)
+    	    end
+	end
 
 	SetVisible(Arh_MainFrame, cfg.MainFrame.Visible)
 	Arh_MainFrame:SetScale(cfg.MainFrame.Scale)
