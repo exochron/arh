@@ -238,6 +238,7 @@ Arh_DefaultConfig =
 		ShowArrow = true,
 		ArrowScale = 1,
 		ArrowAlpha = 1,
+		ArchOnly = true,
 		ShowSuccessCircle = true,
 		SuccessCircleColor = {r=1, g=0, b=0, a=1},
 		ShowCompass = false,
@@ -766,6 +767,21 @@ local OptionsTable =
 								disabled = function(info) return not GatherMate2 end,
 								get = function(info) return cfg.HUD.UseGatherMate2 end,
 								set = function(info,val) Arh_SetUseGatherMate2(val) end,
+							},
+							ArchOnly =
+							{
+								order = 1.5,
+								name = L["Arch nodes only"],
+								desc = L["Only show Archaeology nodes from GatherMate2 on the HUD"],
+								type = "toggle",
+								width = "full",
+								get = function(info) return cfg.HUD.ArchOnly end,
+								set =
+									function(info,val)
+										cfg.HUD.ArchOnly = val
+										addon:ToggleHUD();addon:ToggleHUD()
+									end,
+								disabled = function(info) return not cfg.HUD.UseGatherMate2 end,
 							},
 							scale =
 							{
@@ -1976,8 +1992,10 @@ local function DisableNonArchPins()
   if GMonHud then
     local v = GatherMate2.Visible
     if not v then return end
-    for i,_ in pairs(v) do
-      v[i] = false
+    if cfg.HUD.ArchOnly then
+      for i,_ in pairs(v) do
+        v[i] = false
+      end
     end
     v["Archaeology"] = true
   end
