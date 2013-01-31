@@ -133,7 +133,7 @@ function addon:ToggleMainFrame(enable)
 	else
 		cfg.MainFrame.Visible = not Arh_MainFrame:IsVisible()
 	end
-	SetVisible(Arh_MainFrame, cfg.MainFrame.Visible)
+	if not InCombatLockdown() then SetVisible(Arh_MainFrame, cfg.MainFrame.Visible) end
 	addon:ToggleHUD(cfg.MainFrame.Visible)
 	if cfg.MainFrame.Visible then
 		PlaySound(SOUND_SHOWMAINFRAME)
@@ -177,11 +177,11 @@ function addon:CheckSuppress()
     shouldsuppress = true
   end
   if shouldsuppress and not addon.suppress then -- begin suppress
-    SetVisible(Arh_MainFrame, false)
+    if not InCombatLockdown() then SetVisible(Arh_MainFrame, false) end
     SetVisible(Arh_HudFrame, false)
     addon.suppress = true  
   elseif not shouldsuppress and addon.suppress then -- end suppress
-    SetVisible(Arh_MainFrame, cfg.MainFrame.Visible)
+    if not InCombatLockdown() then SetVisible(Arh_MainFrame, cfg.MainFrame.Visible) end
     SetVisible(Arh_HudFrame, cfg.HUD.Visible)
     addon.suppress = false
   end
