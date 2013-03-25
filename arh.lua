@@ -235,6 +235,8 @@ Arh_DefaultConfig =
 		UseGatherMate2 = true,
 		Scale = 1,
 		Alpha = 1,
+		PosX = 0,
+		PosY = 0,
 		ShowArrow = true,
 		ArrowScale = 1,
 		ArrowAlpha = 1,
@@ -286,29 +288,11 @@ function addon:ResetSettings()
 	Arh_MainFrame:ClearAllPoints()
 	Arh_MainFrame:SetPoint("CENTER")
 
--- HUD
-	-- Frame
+	-- HUD
 	Arh_SetUseGatherMate2(cfg.HUD.UseGatherMate2)
-    Arh_HudFrame:SetScale(cfg.HUD.Scale)
-	Arh_HudFrame:SetAlpha(cfg.HUD.Alpha)
-    -- Arrow
-	SetVisible(Arh_HudFrame_ArrowFrame, cfg.HUD.ShowArrow)
-	Arh_HudFrame_ArrowFrame:SetScale(cfg.HUD.ArrowScale)
-	Arh_HudFrame_ArrowFrame:SetAlpha(cfg.HUD.ArrowAlpha)
-	-- SuccessCircle
-    SetVisible(Arh_HudFrame.SuccessCircle, cfg.HUD.ShowSuccessCircle)
-	c = cfg.HUD.SuccessCircleColor
-	Arh_HudFrame.SuccessCircle:SetVertexColor(c.r, c.g, c.b, c.a)
-	-- Compass
-	SetVisible(Arh_HudFrame.CompassCircle, cfg.HUD.ShowCompass)
-	c = cfg.HUD.CompassColor
-	Arh_HudFrame.CompassCircle:SetVertexColor(c.r, c.g, c.b, c.a)
-	c = cfg.HUD.CompassTextColor
-    for k, v in ipairs(Arh_HudFrame.CompasDirections) do
-		SetVisible(v, cfg.HUD.ShowCompass)
-		v:SetTextColor(c.r, c.g, c.b, c.a)
-    end
+	addon:HUD_config_update()
 	Arh_UpdateHudFrameSizes(true)
+
 	-- Annulus Sectors
 	addon:UpdateAlphaEverything()
 	addon:ToggleHUD(cfg.HUD.Visible)
@@ -798,7 +782,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.Scale = val
-										Arh_HudFrame:SetScale(val)
+										addon:HUD_config_update()
 									end,
 							},
 							alpha =
@@ -815,7 +799,39 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.Alpha = val
-										Arh_HudFrame:SetAlpha(val)
+										addon:HUD_config_update()
+									end,
+							},
+							posx =
+							{
+								order = 3,
+								name = L["HUD X-Offset"],
+								desc = L["Horizontal position of HUD relative to screen center"],
+								type = "range",        
+								min = -0.5,
+								max = 0.5,
+								step = 0.01,
+								isPercent = true,
+								get = function(info) return cfg.HUD.PosX end,
+								set = function(info,val)
+										cfg.HUD.PosX = val
+										addon:HUD_config_update()
+									end,
+							},
+							posy =
+							{
+								order = 3,
+								name = L["HUD Y-Offset"],
+								desc = L["Vertical position of HUD relative to screen center"],
+								type = "range",        
+								min = -0.5,
+								max = 0.5,
+								step = 0.01,
+								isPercent = true,
+								get = function(info) return cfg.HUD.PosY end,
+								set = function(info,val)
+										cfg.HUD.PosY = val
+										addon:HUD_config_update()
 									end,
 							},
 							ShowArrow =
@@ -829,7 +845,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.ShowArrow = val
-										SetVisible(Arh_HudFrame_ArrowFrame, val)
+										addon:HUD_config_update()
 									end,
 							},
 							ArrowScale =
@@ -848,7 +864,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.ArrowScale = val
-										Arh_HudFrame_ArrowFrame:SetScale(val)
+										addon:HUD_config_update()
 									end,
 							},
 							ArrowAlpha =
@@ -866,7 +882,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.ArrowAlpha = val
-										Arh_HudFrame_ArrowFrame:SetAlpha(val)
+										addon:HUD_config_update()
 									end,
 							},
 							ShowSuccessCircle =
@@ -879,7 +895,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.ShowSuccessCircle = val
-										SetVisible(Arh_HudFrame.SuccessCircle, val)
+										addon:HUD_config_update()
 									end,
 							},
 							SuccessCircleColor =
@@ -899,7 +915,7 @@ local OptionsTable =
 										function(info, r, g, b, a)
 											local c = cfg.HUD.SuccessCircleColor
 											c.r, c.g, c.b, c.a = r, g, b, a
-											Arh_HudFrame.SuccessCircle:SetVertexColor(c.r, c.g, c.b, c.a)
+											addon:HUD_config_update()
 										end,
 							},
 
@@ -923,10 +939,7 @@ local OptionsTable =
 								set =
 									function(info,val)
 										cfg.HUD.ShowCompass = val
-										SetVisible(Arh_HudFrame.CompassCircle, val)
-										for k, v in ipairs(Arh_HudFrame.CompasDirections) do
-											SetVisible(v, val)
-										end
+										addon:HUD_config_update()
 									end,
 							},
 							CompassRadius =
@@ -965,7 +978,7 @@ local OptionsTable =
 										function(info, r, g, b, a)
 											local c = cfg.HUD.CompassColor
 											c.r, c.g, c.b, c.a = r, g, b, a
-											Arh_HudFrame.CompassCircle:SetVertexColor(c.r, c.g, c.b, c.a)
+											addon:HUD_config_update()
 										end,
 							},
 							CompassTextColor =
@@ -985,9 +998,7 @@ local OptionsTable =
 										function(info, r, g, b, a)
 											local c = cfg.HUD.CompassTextColor
 											c.r, c.g, c.b, c.a = r, g, b, a
-											for k, v in ipairs(Arh_HudFrame.CompasDirections) do
-												v:SetTextColor(c.r, c.g, c.b, c.a)
-											end
+											addon:HUD_config_update()
 										end,
 							},
 
@@ -1886,44 +1897,51 @@ end
 function Arh_HudFrame_OnLoad()
 end
 
-function Arh_HudFrame_Init()
-	Arh_HudFrame.GetZoom = function(...) return Minimap:GetZoom(...) end
-	Arh_HudFrame.SetZoom = function(...) end
-
--- HUD Frame
+function addon:HUD_config_update()
 	Arh_HudFrame:SetParent("UIParent")
 	Arh_HudFrame:ClearAllPoints()
-	Arh_HudFrame:SetPoint("CENTER")
+	Arh_HudFrame:SetPoint("CENTER", (cfg.HUD.PosX or 0)*GetScreenWidth()/(cfg.HUD.Scale or 1), 
+	                                (cfg.HUD.PosY or 0)*GetScreenHeight()/(cfg.HUD.Scale or 1))
 	Arh_HudFrame:EnableMouse(false)
 	Arh_HudFrame:SetFrameStrata("BACKGROUND")
 
 	Arh_HudFrame:SetScale(cfg.HUD.Scale)
 	Arh_HudFrame:SetAlpha(cfg.HUD.Alpha)
 
--- Arrow
+	-- Arrow
 	SetVisible(Arh_HudFrame_ArrowFrame, cfg.HUD.ShowArrow)
 	Arh_HudFrame_ArrowFrame:SetScale(cfg.HUD.ArrowScale)
 	Arh_HudFrame_ArrowFrame:SetAlpha(cfg.HUD.ArrowAlpha)
 
--- Success Circle
-	local circle = Arh_HudFrame:CreateTexture()
-	circle:SetTexture([[SPELLS\CIRCLE.BLP]])
-	circle:SetBlendMode("ADD")
-	circle:SetPoint("CENTER")
+	-- Success Circle
+	Arh_HudFrame.SuccessCircle:SetPoint("CENTER")
 	local c = cfg.HUD.SuccessCircleColor
-	circle:SetVertexColor(c.r,c.g,c.b,c.a)
-	SetVisible(circle, cfg.HUD.ShowSuccessCircle)
-	Arh_HudFrame.SuccessCircle = circle
-
--- Compass Circle
-	circle = Arh_HudFrame:CreateTexture()
-	circle:SetTexture([[SPELLS\CIRCLE.BLP]])
-	circle:SetBlendMode("ADD")
-	circle:SetPoint("CENTER")
+	Arh_HudFrame.SuccessCircle:SetVertexColor(c.r,c.g,c.b,c.a)
+	SetVisible(Arh_HudFrame.SuccessCircle, cfg.HUD.ShowSuccessCircle)
+	
+	-- Compass Circle
+	Arh_HudFrame.CompassCircle:SetPoint("CENTER")
 	c = cfg.HUD.CompassColor
-	circle:SetVertexColor(c.r,c.g,c.b,c.a)
-	SetVisible(circle, cfg.HUD.ShowCompass)
-	Arh_HudFrame.CompassCircle = circle
+	Arh_HudFrame.CompassCircle:SetVertexColor(c.r,c.g,c.b,c.a)
+	SetVisible(Arh_HudFrame.CompassCircle, cfg.HUD.ShowCompass)
+	c = cfg.HUD.CompassTextColor
+	for _, ind in ipairs(Arh_HudFrame.CompasDirections) do
+		SetVisible(ind, cfg.HUD.ShowCompass)
+		ind:SetTextColor(c.r,c.g,c.b,c.a)
+	end
+end
+
+function Arh_HudFrame_Init()
+	Arh_HudFrame.GetZoom = function(...) return Minimap:GetZoom(...) end
+	Arh_HudFrame.SetZoom = function(...) end
+
+	Arh_HudFrame.SuccessCircle = Arh_HudFrame:CreateTexture()
+	Arh_HudFrame.SuccessCircle:SetTexture([[SPELLS\CIRCLE.BLP]])
+	Arh_HudFrame.SuccessCircle:SetBlendMode("ADD")
+
+	Arh_HudFrame.CompassCircle = Arh_HudFrame:CreateTexture()
+	Arh_HudFrame.CompassCircle:SetTexture([[SPELLS\CIRCLE.BLP]])
+	Arh_HudFrame.CompassCircle:SetBlendMode("ADD")
 
 -- Compass Text
 	local directions = {}
@@ -1935,12 +1953,11 @@ function Arh_HudFrame_Init()
 		ind:SetShadowOffset(0.2,-0.2)
 		ind:SetTextHeight(20)
 		ind.angle = a
-		c = cfg.HUD.CompassTextColor
-		ind:SetTextColor(c.r,c.g,c.b,c.a)
-		SetVisible(ind, cfg.HUD.ShowCompass)
 		tinsert(directions, ind)
 	end
 	Arh_HudFrame.CompasDirections = directions
+
+	addon:HUD_config_update()
 end
 
 local arh_waiting_for_move = false
