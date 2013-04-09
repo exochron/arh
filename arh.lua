@@ -1420,21 +1420,33 @@ function addon:UpdateCons(player_x, player_y, player_a)
 	addon:UpdateConsPositions(player_x, player_y, player_a)
 end
 
+local _lastmapid, _lastmaptext
 function addon:GetPos()
   local oldmap = GetCurrentMapAreaID()
   local oldlvl = GetCurrentMapDungeonLevel()
   if WorldMapFrame then -- prevent map flicker
     WorldMapFrame.blockWorldMapUpdate = true
   end
-  SetMapToCurrentZone();
-  local level = GetCurrentMapDungeonLevel();
-  local map = GetCurrentMapAreaID();
-  local x, y = GetPlayerMapPosition("player")
-  if oldmap ~= map then
-    SetMapByID(oldmap)
+  local map = oldmap
+  local level = oldlvl
+  local text = GetRealZoneText()
+  if map ~= _lastmapid or text ~= _lastmaptext then -- try to avoid unnecessary map sets
+    SetMapToCurrentZone()
+    map = GetCurrentMapAreaID()
+    level = GetCurrentMapDungeonLevel();
+    --print("SetMapToCurrentZone: "..oldmap.."->"..map)
+    _lastmapid = map
+    _lastmaptext = text
   end
-  if oldlvl and oldlvl > 0 then
-    SetDungeonMapLevel(oldlvl)
+  local x, y = GetPlayerMapPosition("player")
+  if WorldMapFrame and WorldMapFrame:IsVisible() then
+    if oldmap ~= map then
+      SetMapByID(oldmap)
+      _lastmapid = nil
+    end
+    if oldlvl and oldlvl > 0 then
+      SetDungeonMapLevel(oldlvl)
+    end
   end
   if WorldMapFrame then
     WorldMapFrame.blockWorldMapUpdate = nil
