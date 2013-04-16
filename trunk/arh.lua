@@ -2018,6 +2018,7 @@ local vishooked, enablehooked
 local GMonHud
 local function DisableNonArchPins()
   if not GatherMate2 then return end
+  local gmsettings = GatherMate2.db and GatherMate2.db.profile
   if GMonHud then
     local v = GatherMate2.Visible
     if not v then return end
@@ -2027,6 +2028,13 @@ local function DisableNonArchPins()
       end
     end
     v["Archaeology"] = true
+    if gmsettings and not gmsettings.showMinimap then
+      gmsettings.showMinimap = true -- Gm2 minimap pins must be enabled for us to use them
+      gmsettings.showMinimapSuppressed = true
+    end
+  elseif gmsettings and gmsettings.showMinimapSuppressed then
+    gmsettings.showMinimap = false -- restore the minimap setting for hud disabled
+    gmsettings.showMinimapSuppressed = nil
   end
 end
 
