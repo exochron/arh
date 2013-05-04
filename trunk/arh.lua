@@ -1422,6 +1422,7 @@ end
 
 local _lastmapid, _lastmaptext
 function addon:GetPos()
+  local oldcont = GetCurrentMapContinent()
   local oldmap = GetCurrentMapAreaID()
   local oldlvl = GetCurrentMapDungeonLevel()
   if WorldMapFrame then -- prevent map flicker
@@ -1441,6 +1442,7 @@ function addon:GetPos()
   local x, y = GetPlayerMapPosition("player")
   if WorldMapFrame and WorldMapFrame:IsVisible() then
     if oldmap ~= map then
+      SetMapZoom(oldcont)
       SetMapByID(oldmap)
       _lastmapid = nil
     end
