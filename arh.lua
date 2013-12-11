@@ -446,7 +446,7 @@ local OptionsTable =
         							type = "toggle",
         							set = function(info,val)
           								cfg.Minimap.hide = not val
-									minimapIcon:Update()
+									minimapIcon:Refresh(addonName)
         							end,
         							get = function() return not cfg.Minimap.hide end,
       							},
@@ -1695,7 +1695,7 @@ local function OnSpellSent(unit,spellcast,rank,target)
 end
 
 local function OnAddonLoaded(name)
-	if name=="Arh" then
+	if name=="Arh" and not addon.init then
 		if not Arh_Config then
 			Arh_Config = CopyByValue(Arh_DefaultConfig)
 		else
@@ -1704,6 +1704,7 @@ local function OnAddonLoaded(name)
 		cfg = Arh_Config
 		Arh_HudFrame_Init()
 		Arh_MainFrame_Init()
+		addon.init = true
 	end
 	addon:HookArchy()
 end
@@ -1767,13 +1768,7 @@ function Arh_MainFrame_Init()
      	})
 
     	minimapIcon:Register(addonName, LDBo, cfg.Minimap)
-	minimapIcon.Update = function()
-	    if cfg.Minimap.hide then
-      		minimapIcon:Hide(addonName)
-    	    else
-     		minimapIcon:Show(addonName)
-    	    end
-	end
+	minimapIcon:Refresh(addonName)
 
 	SetVisible(Arh_MainFrame, cfg.MainFrame.Visible)
 	Arh_MainFrame:SetScale(cfg.MainFrame.Scale)
