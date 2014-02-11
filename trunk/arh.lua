@@ -127,6 +127,22 @@ function addon:HookArchy()
   end
 end
 
+local function DigsiteUpdate()
+  local shown = ArcheologyDigsiteProgressBar:IsShown()
+  local follow = cfg and cfg.MainFrame and cfg.MainFrame.FollowDigsite
+  if follow and not cfg.MainFrame.Visible ~= not shown then 
+    addon:ToggleMainFrame(shown)
+  end
+end
+
+function addon:HookDigsite()
+  if ArcheologyDigsiteProgressBar_OnShow and not addon.digsite_hooked then
+    hooksecurefunc("ArcheologyDigsiteProgressBar_OnShow", DigsiteUpdate)
+    hooksecurefunc("ArcheologyDigsiteProgressBar_OnHide", DigsiteUpdate)
+    addon.digsite_hooked = true
+  end
+end
+
 function addon:ToggleMainFrame(enable)
 	if enable ~= nil then
 		cfg.MainFrame.Visible = enable
@@ -217,6 +233,7 @@ Arh_DefaultConfig =
 	{
 		Visible = true,
 		FollowArchy = true,
+		FollowDigsite = true,
 		HideCombat = true,
 		HideResting = true,
 		Locked = false,
@@ -408,6 +425,15 @@ local OptionsTable =
 								disabled = function(info) return not Archy end,
 								get = function(info) return cfg.MainFrame.FollowArchy end,
 								set = function(info, val) cfg.MainFrame.FollowArchy = val end,
+							},
+							digsite =
+							{
+								order = 2.5,
+								name = L["Toggle with Digsite progress"],
+								desc = L["Show/Hide window with the Digsite progress bar"],
+								type = "toggle",
+								get = function(info) return cfg.MainFrame.FollowDigsite end,
+								set = function(info, val) cfg.MainFrame.FollowDigsite = val end,
 							},
 							hidecombat =
 							{
@@ -1707,6 +1733,7 @@ local function OnAddonLoaded(name)
 		addon.init = true
 	end
 	addon:HookArchy()
+	addon:HookDigsite()
 end
 
 function Arh_MainFrame_OnEvent(self, event, ...)
