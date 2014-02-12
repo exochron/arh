@@ -127,21 +127,17 @@ function addon:HookArchy()
   end
 end
 
-local function DigsiteUpdate()
-  local shown = ArcheologyDigsiteProgressBar:IsShown()
+local function DigsiteUpdate(self, elapsed)
+  if InCombatLockdown() then return end
+  local shown = CanScanResearchSite()
   local follow = cfg and cfg.MainFrame and cfg.MainFrame.FollowDigsite
   if follow and not cfg.MainFrame.Visible ~= not shown then 
     addon:ToggleMainFrame(shown)
   end
 end
 
-function addon:HookDigsite()
-  if ArcheologyDigsiteProgressBar_OnShow and not addon.digsite_hooked then
-    hooksecurefunc("ArcheologyDigsiteProgressBar_OnShow", DigsiteUpdate)
-    hooksecurefunc("ArcheologyDigsiteProgressBar_OnHide", DigsiteUpdate)
-    addon.digsite_hooked = true
-  end
-end
+addon.hiddenFrame = CreateFrame("Button", "ArhHiddenFrame", UIParent)
+addon.hiddenFrame:SetScript("OnUpdate",DigsiteUpdate)
 
 function addon:ToggleMainFrame(enable)
 	if enable ~= nil then
@@ -429,8 +425,8 @@ local OptionsTable =
 							digsite =
 							{
 								order = 2.5,
-								name = L["Toggle with Digsite progress"],
-								desc = L["Show/Hide window with the Digsite progress bar"],
+								name = L["Toggle with digsite"],
+								desc = L["Show/Hide window when entering/leaving a digsite"],
 								type = "toggle",
 								get = function(info) return cfg.MainFrame.FollowDigsite end,
 								set = function(info, val) cfg.MainFrame.FollowDigsite = val end,
@@ -1733,7 +1729,6 @@ local function OnAddonLoaded(name)
 		addon.init = true
 	end
 	addon:HookArchy()
-	addon:HookDigsite()
 end
 
 function Arh_MainFrame_OnEvent(self, event, ...)
