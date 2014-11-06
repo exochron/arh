@@ -1447,13 +1447,18 @@ function addon:GetPos()
   local oldcont = GetCurrentMapContinent()
   local oldmap = GetCurrentMapAreaID()
   local oldlvl = GetCurrentMapDungeonLevel()
-  if WorldMapFrame then -- prevent map flicker
-    WorldMapFrame.blockWorldMapUpdate = true
-  end
   local map = oldmap
   local level = oldlvl
   local text = GetRealZoneText()
+  local flicker
   if map ~= _lastmapid or text ~= _lastmaptext then -- try to avoid unnecessary map sets
+    if WorldMapFrame and WorldMapFrame:IsVisible() then -- prevent map flicker
+      if WorldMapFrame:IsMouseOver() then
+        return 0,0,map,0
+      end
+      WorldMapFrame:Hide()
+      flicker = true
+    end
     SetMapToCurrentZone()
     map = GetCurrentMapAreaID()
     level = GetCurrentMapDungeonLevel();
@@ -1462,7 +1467,8 @@ function addon:GetPos()
     _lastmaptext = text
   end
   local x, y = GetPlayerMapPosition("player")
-  if WorldMapFrame and WorldMapFrame:IsVisible() then
+  if flicker then
+    WorldMapFrame:Show()
     if oldmap ~= map then
       SetMapZoom(oldcont)
       SetMapByID(oldmap)
@@ -1471,9 +1477,6 @@ function addon:GetPos()
     if oldlvl and oldlvl > 0 then
       SetDungeonMapLevel(oldlvl)
     end
-  end
-  if WorldMapFrame then
-    WorldMapFrame.blockWorldMapUpdate = nil
   end
   return x,y,map,level
 end
