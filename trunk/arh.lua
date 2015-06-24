@@ -1721,6 +1721,7 @@ end
 
 local function OnAddonLoaded(name)
 	if name=="Arh" and not addon.init then
+		local start = debugprofilestop()
 		if not Arh_Config then
 			Arh_Config = CopyByValue(Arh_DefaultConfig)
 		else
@@ -1729,6 +1730,7 @@ local function OnAddonLoaded(name)
 		cfg = Arh_Config
 		Arh_HudFrame_Init()
 		Arh_MainFrame_Init()
+		--print(string.format("Arh Load time: %f ms",debugprofilestop()-start))
 		addon.init = true
 	end
 	addon:HookArchy()
