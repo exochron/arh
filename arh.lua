@@ -238,6 +238,9 @@ Arh_DefaultConfig =
 		ShowTooltips = true,
 		TooltipsScale = 1,
 		PlaySounds = true,
+		MountGreen = false,
+		MountYellow = true,
+		MountRed = true,
 		posX = 0,
 		posY = 0,
 		point = "CENTER",
@@ -375,6 +378,12 @@ local OptionsTable =
 				name = L["Main Window"],
 				desc = L["Main window settings"],
 				type = "group",
+                        	get = function(info)
+                                 	return cfg.MainFrame[info[#info]]
+                        	end,
+                        	set = function(info, value)
+                                        cfg.MainFrame[info[#info]] = value
+                        	end,
 				args =
 				{
 					VisualOptions =
@@ -400,64 +409,52 @@ local OptionsTable =
 											Arh_MainFrame:SetPoint("CENTER")
 										end,
 							},
-							visible =
+							Visible =
 							{
 								order = 2,
 								name = L["Visible"],
 								desc = L["Whether window is visible"],
 								type = "toggle",
-								get = function(info) return cfg.MainFrame.Visible end,
-								set =
-									function(info, val)
+								set = function(info, val)
 										addon:ToggleMainFrame(val)
 									end,
 							},
-							archy =
+							FollowArchy =
 							{
 								order = 2.5,
 								name = L["Toggle with Archy"],
 								desc = L["Show/Hide window when you show/hide Archy addon"],
 								type = "toggle",
 								disabled = function(info) return not Archy end,
-								get = function(info) return cfg.MainFrame.FollowArchy end,
-								set = function(info, val) cfg.MainFrame.FollowArchy = val end,
 							},
-							digsite =
+							FollowDigsite =
 							{
 								order = 2.5,
 								name = L["Toggle with digsite"],
 								desc = L["Show/Hide window when entering/leaving a digsite"],
 								type = "toggle",
-								get = function(info) return cfg.MainFrame.FollowDigsite end,
-								set = function(info, val) cfg.MainFrame.FollowDigsite = val end,
 							},
-							hidecombat =
+							HideCombat =
 							{
 								order = 2.7,
 								name = L["Hide on combat"],
 								desc = L["Hide on combat"],
 								type = "toggle",
-								get = function(info) return cfg.MainFrame.HideCombat end,
-								set = function(info, val) cfg.MainFrame.HideCombat = val end,
 							},
-							hideresting =
+							HideResting =
 							{
 								order = 2.9,
 								name = L["Hide when resting"],
 								desc = L["Hide when resting"],
 								type = "toggle",
-								get = function(info) return cfg.MainFrame.HideResting end,
-								set = function(info, val) cfg.MainFrame.HideResting = val end,
 							},
-							locked =
+							Locked =
 							{
 								order = 3,
 								name = L["Locked"],
 								desc = L["Locks window to prevent accidental repositioning"],
 								type = "toggle",
-								get = function(info) return cfg.MainFrame.Locked end,
-								set =
-									function(info, val)
+								set = function(info, val)
 										cfg.MainFrame.Locked = val
 									end,
 							},
@@ -472,7 +469,7 @@ local OptionsTable =
         							end,
         							get = function() return not cfg.Minimap.hide end,
       							},
-							scale =
+							Scale =
 							{
 								order = 4,
 								name = L["Scaling"],
@@ -483,14 +480,13 @@ local OptionsTable =
 								softMin = 0.5,
 								softMax = 5,
 								step = 0.1,
-								get = function(info) return cfg.MainFrame.Scale end,
 								set =
 									function(info, val)
 										cfg.MainFrame.Scale = val
 										Arh_MainFrame:SetScale(val)
 									end,
 							},
-							alpha =
+							Alpha =
 							{
 								order = 5,
 								name = L["Alpha"],
@@ -500,7 +496,6 @@ local OptionsTable =
 								max = 1,
 								step = 0.01,
 								isPercent = true,
-								get = function(info) return cfg.MainFrame.Alpha end,
 								set =
 									function(info, val)
 										cfg.MainFrame.Alpha = val
@@ -513,10 +508,8 @@ local OptionsTable =
 								name = L["Show Tooltips"],
 								desc = L["Show Tooltips in the main window"],
 								type = "toggle",
-								get = function(info) return cfg.MainFrame.ShowTooltips end,
-								set = function(info, val) cfg.MainFrame.ShowTooltips = val end,
 							},
-							TooltipsScaling =
+							TooltipsScale =
 							{
 								order = 7,
 								name = L["Tooltips Scaling"],
@@ -527,7 +520,6 @@ local OptionsTable =
 								step = 0.05,
 								isPercent = true,
 								disabled = function(info) return not cfg.MainFrame.ShowTooltips end,
-								get = function(info) return cfg.MainFrame.TooltipsScale end,
 								set =
 									function(info, val)
 										cfg.MainFrame.TooltipsScale = val
@@ -536,12 +528,13 @@ local OptionsTable =
 							},
 						},
 					},
-					AudioOptions =
+					MiscOptions =
 					{
 						order = 2,
 						type = "group",
-						name = L["Audio Settings"],
+						name = L["Misc Settings"],
 						inline = true,
+
 						args =
 						{
 							PlaySounds =
@@ -550,11 +543,27 @@ local OptionsTable =
 								name = L["Play Sounds"],
 								desc = L["Play confirmation sounds for various actions"],
 								type = "toggle",
-								get = function(info) return cfg.MainFrame.PlaySounds end,
-								set =
-									function(info, val)
-										cfg.MainFrame.PlaySounds = val
-									end,
+							},
+							MountRed =
+							{
+								order = 11,
+								name = L["Mount %s"]:format(L["red"]),
+								desc = L["Automatically mount when adding this color to the HUD"],
+								type = "toggle",
+							},
+							MountYellow =
+							{
+								order = 12,
+								name = L["Mount %s"]:format(L["yellow"]),
+								desc = L["Automatically mount when adding this color to the HUD"],
+								type = "toggle",
+							},
+							MountGreen =
+							{
+								order = 13,
+								name = L["Mount %s"]:format(L["green"]),
+								desc = L["Automatically mount when adding this color to the HUD"],
+								type = "toggle",
 							},
 						},
 					},
@@ -1531,14 +1540,23 @@ end
 
 function Arh_MainFrame_ButtonRed_OnLClick()
 	AddPoint(ARH_RED)
+	if cfg.MainFrame.MountRed then
+		addon:mount()
+	end
 end
 
 function Arh_MainFrame_ButtonYellow_OnLClick()
 	AddPoint(ARH_YELLOW)
+	if cfg.MainFrame.MountYellow then
+		addon:mount()
+	end
 end
 
 function Arh_MainFrame_ButtonGreen_OnLClick()
 	AddPoint(ARH_GREEN)
+	if cfg.MainFrame.MountGreen then
+		addon:mount()
+	end
 end
 
 local function ToggleColor(color, visible)
@@ -1640,6 +1658,24 @@ function addon:OnGathering()
 	ToggleColorButton(Arh_MainFrame_ButtonYellow, ARH_YELLOW, true)
 	ToggleColorButton(Arh_MainFrame_ButtonGreen, ARH_GREEN, true)
 --	PlaySound(SOUND_GATHERING)
+end
+
+function addon:mount()
+  if InCombatLockdown() or IsMounted() or IsFlying() then return end
+  local c = GetItemCount(37011, false) -- Magic Broom 
+  if c and c > 0 then
+    local n = GetItemInfo(37011)
+    if n then
+      UseItemByName(n)
+      return
+    end
+  end
+  if false and select(2,UnitClass("player")) == "DRUID" then
+    CastSpellByID(783) -- travel form, protected action >.<
+    CastShapeshiftForm(3) -- also protected
+    return
+  end
+  C_MountJournal.Summon(0) -- random favorite mount
 end
 
 
