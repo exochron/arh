@@ -46,7 +46,7 @@
 			</Scripts>
 		</Frame>
 
-		<Button name="$parent_ButtonRed" disabled="true">
+		<Button name="$parent_ButtonRed" inherits="SecureActionButtonTemplate">
 			<Size x="30" y="30"/>
 			<Anchors>
 				<Anchor point="TOPLEFT" x="3" y="-5"/>
@@ -63,7 +63,7 @@
 				<OnLeave> Arh_HideTooltip(self) </OnLeave>
 			</Scripts>
 		</Button>
-		<Button name="$parent_ButtonYellow">
+		<Button name="$parent_ButtonYellow" inherits="SecureActionButtonTemplate">
 			<Size x="30" y="30"/>
 			<Anchors>
 				<Anchor point="TOPLEFT" x="28" y="-5"/>
@@ -80,7 +80,7 @@
 				<OnLeave> Arh_HideTooltip(self) </OnLeave>
 			</Scripts>
   		</Button>
-		<Button name="$parent_ButtonGreen">
+		<Button name="$parent_ButtonGreen" inherits="SecureActionButtonTemplate">
 			<Size x="30" y="30"/>
 			<Anchors>
 				<Anchor point="TOPLEFT" x="53" y="-5"/>
