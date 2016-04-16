@@ -281,18 +281,29 @@ Arh_DefaultConfig =
 	},
 }
 
+-- label bindings
 BINDING_HEADER_ARH = L["Archaeology Helper"]
-_G["BINDING_NAME_CLICK Arh_MainFrame_ButtonDig:LeftButton"] = L["Cast Survey"]
-BINDING_NAME_ARH_TOGGLEMAIN = L["Show/Hide the Main Window"]
-BINDING_NAME_ARH_TOGGLEHUD = L["Show/Hide the HUD"]
-BINDING_NAME_ARH_SHOWARCHAEOLOGYFRAME = L["Open archaeology window"]
-BINDING_NAME_ARH_ADDRED = 	L["Add %s area to the HUD"]:format(L["red"])
-BINDING_NAME_ARH_ADDYELLOW = 	L["Add %s area to the HUD"]:format(L["yellow"])
-BINDING_NAME_ARH_ADDGREEN = 	L["Add %s area to the HUD"]:format(L["green"])
-BINDING_NAME_ARH_TOGGLERED = 	L["Show/Hide all %s areas"]:format(L["red"])
-BINDING_NAME_ARH_TOGGLEYELLOW = L["Show/Hide all %s areas"]:format(L["yellow"])
-BINDING_NAME_ARH_TOGGLEGREEN = 	L["Show/Hide all %s areas"]:format(L["green"])
-BINDING_NAME_ARH_BACK = L["Remove one previously added area"]
+local bindings = {
+  { name="Dig:Left", 	desc=L["Cast Survey"], },
+  { name="SHOWARCH", 	desc=L["Open archaeology window"] },
+  { name="TOGGLEMAIN", 	desc=L["Show/Hide the Main Window"], 		alias="t" },
+  { name="TOGGLEHUD", 	desc=L["Show/Hide the HUD"], 			alias="h" },
+  { name="BACK",	desc=L["Remove one previously added area"], 	alias="b", 	order=-1 },
+}
+for _,color in ipairs({"Red", "Yellow", "Green"}) do
+  local c = color:lower():sub(1,1)
+  table.insert(bindings, { name=color..":Left", desc=L["Add %s area to the HUD"]:format(L[color:lower()]), alias="a"..c })
+  table.insert(bindings, { name=color..":Right", desc=L["Show/Hide all %s areas"]:format(L[color:lower()]), alias="t"..c })
+end
+for _, info in ipairs(bindings) do
+  local bindname
+  if info.name:find(":") then
+    info.bindname = string.format("CLICK Arh_MainFrame_Button%sButton",info.name)
+  else
+    info.bindname = string.format("ARH_%s",info.name)
+  end
+  _G["BINDING_NAME_"..info.bindname] = info.desc
+end
 
 function addon:ResetSettings()
 	local c
@@ -316,18 +327,6 @@ function addon:ResetSettings()
 -- Dig Sites
 	SetVisible(Arh_ArchaeologyDigSites_BattlefieldMinimap, cfg.DigSites.ShowOnBattlefieldMinimap)
 
-end
-
-local function SafeSetBinding(key, action)
-	if key == "" then
-		oldkey = GetBindingKey(action)
-		if oldkey then
-			SetBinding(oldkey, nil)
-		end
-	else
-		SetBinding(key, action)
-	end
-	SaveBindings(GetCurrentBindingSet())
 end
 
 -- return current value of minimap arch tracking
@@ -573,185 +572,37 @@ local OptionsTable =
 						type = "group",
 						name = L["Key Bindings Settings"],
 						inline = true,
-						args = 
-						{
-							CastSurveyKeyBinding =
-							{
-								order = 1,
-								width = "full",
-								type = "keybinding",
-								name = _G["BINDING_NAME_CLICK Arh_MainFrame_ButtonDig:LeftButton"],
-								desc = L["Cast Survey"],
-								get =
-										function()
-											return GetBindingKey("CLICK Arh_MainFrame_ButtonDig:LeftButton")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "CLICK Arh_MainFrame_ButtonDig:LeftButton")
-										end
-							},
-							ToggleMainKeyBinding =
-							{
-								order = 1.5,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_TOGGLEMAIN,
-								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh t|r"),
-								get =
-										function()
-											return GetBindingKey("ARH_TOGGLEMAIN")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_TOGGLEMAIN")
-										end
-							},
-							ToggleHudKeyBinding =
-							{
-								order = 2,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_TOGGLEHUD,
-								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh h|r"),
-								get =
-										function()
-											return GetBindingKey("ARH_TOGGLEHUD")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_TOGGLEHUD")
-										end
-							},
-							ShowArchaeologyFrameKeyBinding =
-							{
-								order = 3,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_SHOWARCHAEOLOGYFRAME,
-								desc = L["Open archaeology window"],
-								get =
-										function()
-											return GetBindingKey("ARH_SHOWARCHAEOLOGYFRAME")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_SHOWARCHAEOLOGYFRAME")
-										end
-							},
-							RedButtonKeyBinding =
-							{
-								order = 4,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_ADDRED,
-								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh ar|r"),
-								get =
-										function()
-											return GetBindingKey("ARH_ADDRED")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_ADDRED")
-										end
-							},
-							YellowButtonKeyBinding =
-							{
-								order = 5,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_ADDYELLOW,
-								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh ay|r"),
-								get =
-										function()
-											return GetBindingKey("ARH_ADDYELLOW")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_ADDYELLOW")
-										end
-							},
-							GreenButtonKeyBinding =
-							{
-								order = 6,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_ADDGREEN,
-								desc = string.format(L["You can also use %s command for this action"],"|cff69ccf0/arh ag|r"),
-								get =
-										function()
-											return GetBindingKey("ARH_ADDGREEN")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_ADDGREEN")
-										end
-							},
-							ToggleRedButtonKeyBinding =
-							{
-								order = 7,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_TOGGLERED,
-								desc = L["Show/Hide all %s areas"]:format(L["red"]),
-								get =
-										function()
-											return GetBindingKey("ARH_TOGGLERED")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_TOGGLERED")
-										end
-							},
-							ToggleYellowButtonKeyBinding =
-							{
-								order = 8,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_TOGGLEYELLOW,
-								desc = L["Show/Hide all %s areas"]:format(L["yellow"]),
-								get =
-										function()
-											return GetBindingKey("ARH_TOGGLEYELLOW")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_TOGGLEYELLOW")
-										end
-							},
-							ToggleGreenButtonKeyBinding =
-							{
-								order = 9,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_TOGGLEGREEN,
-								desc = L["Show/Hide all %s areas"]:format(L["green"]),
-								get =
-										function()
-											return GetBindingKey("ARH_TOGGLEGREEN")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_TOGGLEGREEN")
-										end
-							},
-							BackButtonKeyBinding =
-							{
-								order = 10,
-								width = "full",
-								type = "keybinding",
-								name = BINDING_NAME_ARH_BACK,
-								desc = L["Remove one previously added area"],
-								get =
-										function()
-											return GetBindingKey("ARH_BACK")
-										end,
-								set =
-										function(info, v)
-											SafeSetBinding(v, "ARH_BACK")
-										end
-							},
-						},
+						get = function(info)
+							return GetBindingKey(info.arg)
+						      end,
+						set = function(info, key)
+							local action = info.arg
+							if key == "" then
+								oldkey = GetBindingKey(action)
+								if oldkey then
+									SetBinding(oldkey, nil)
+								end
+							else
+								SetBinding(key, action)
+							end
+							SaveBindings(GetCurrentBindingSet())
+						      end,
+						args = (function()
+						  local ret = {}
+						  for i,info in ipairs(bindings) do
+						    ret[info.name] = {
+						      order = info.order or i,
+						      width = "full",
+						      type = "keybinding",
+						      name = info.desc,
+						      arg = info.bindname,
+						      desc = info.alias and string.format(L["You can also use %s command for this action"], 
+						                            string.format("|cff69ccf0/arh %s|r", info.alias))
+						             or info.desc,
+						    }
+						  end
+						  return ret
+						end)(),
 					},
 
 				},
