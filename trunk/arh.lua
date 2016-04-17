@@ -17,6 +17,11 @@ local cfg = nil
 local ARH_GREEN = 1
 local ARH_YELLOW = 2
 local ARH_RED = 3
+local id2cname = {
+  [ARH_GREEN] = "Green",
+  [ARH_YELLOW] = "Yellow",
+  [ARH_RED] = "Red",
+}
 
 local CONYARDS = {[ARH_GREEN] = 40, [ARH_YELLOW] = 80, [ARH_RED] = 640}
 
@@ -1264,21 +1269,9 @@ end
 function addon:UpdateAlpha(texture, color, isline)
 	local a
 	if isline then
-		if color == ARH_RED then
-			a = cfg.HUD.RedLineAlpha
-		elseif color == ARH_YELLOW then
-			a = cfg.HUD.YellowLineAlpha
-		elseif color == ARH_GREEN then
-			a = cfg.HUD.GreenLineAlpha
-		end
+		a =  cfg.HUD[id2cname[color].."LineAlpha"]
 	else
-		if color == ARH_RED then
-			a = cfg.HUD.RedSectAlpha
-		elseif color == ARH_YELLOW then
-			a = cfg.HUD.YellowSectAlpha
-		elseif color == ARH_GREEN then
-			a = cfg.HUD.GreenSectAlpha
-		end
+		a =  cfg.HUD[id2cname[color].."SectAlpha"]
 	end
 
 	texture:SetAlpha(a)
@@ -1389,27 +1382,6 @@ local function AddPoint(color)
 	PlaySound(SOUND_ADDCON)
 end
 
-function Arh_MainFrame_ButtonRed_OnLClick()
-	AddPoint(ARH_RED)
-	if cfg.MainFrame.MountRed then
-		addon:mount()
-	end
-end
-
-function Arh_MainFrame_ButtonYellow_OnLClick()
-	AddPoint(ARH_YELLOW)
-	if cfg.MainFrame.MountYellow then
-		addon:mount()
-	end
-end
-
-function Arh_MainFrame_ButtonGreen_OnLClick()
-	AddPoint(ARH_GREEN)
-	if cfg.MainFrame.MountGreen then
-		addon:mount()
-	end
-end
-
 local function ToggleColor(color, visible)
 	for _,item in ipairs(addon.ConsArray) do
 		if item.color == color then
@@ -1419,7 +1391,8 @@ local function ToggleColor(color, visible)
 	end
 end
 
-local function ToggleColorButton(self, color, enable)
+local function ToggleColorButton(self, enable)
+	local color = self:GetID()
 	if enable ~= nil then
 		self.Canceled = not enable
 	else
@@ -1434,50 +1407,22 @@ local function ToggleColorButton(self, color, enable)
 	end
 end
 
-function Arh_MainFrame_ButtonRed_OnRClick()
-	ToggleColorButton(Arh_MainFrame_ButtonRed, ARH_RED)
-end
-
-function Arh_MainFrame_ButtonYellow_OnRClick()
-	ToggleColorButton(Arh_MainFrame_ButtonYellow, ARH_YELLOW)
-end
-
-function Arh_MainFrame_ButtonGreen_OnRClick()
-	ToggleColorButton(Arh_MainFrame_ButtonGreen, ARH_GREEN)
-end
-
-function Arh_MainFrame_ButtonRed_OnMouseDown(self, button)
-	if button == "LeftButton" then
-		Arh_MainFrame_ButtonRed_OnLClick()
-	elseif button == "RightButton" then
-		Arh_MainFrame_ButtonRed_OnRClick()
-	end
-end
-
-function Arh_MainFrame_ButtonYellow_OnMouseDown(self, button)
-	if button == "LeftButton" then
-		Arh_MainFrame_ButtonYellow_OnLClick()
-	elseif button == "RightButton" then
-		Arh_MainFrame_ButtonYellow_OnRClick()
-	end
-end
-
-function Arh_MainFrame_ButtonGreen_OnMouseDown(self, button)
-	if button == "LeftButton" then
-		Arh_MainFrame_ButtonGreen_OnLClick()
-	elseif button == "RightButton" then
-		Arh_MainFrame_ButtonGreen_OnRClick()
-	end
-end
-
-function Arh_MainFrame_ButtonBack_OnLClick()
-	addon:ReturnLastToCache()
-	PlaySound(SOUND_BACK)
+function Arh_MainFrame_ColorButton_OnMouseDown(self, button)
+  if button == "LeftButton" then
+    local id = self:GetID()
+    AddPoint(id)
+    if cfg.MainFrame["Mount"..id2cname[id]] and not self:GetAttribute("spell") then
+      addon:mount()
+    end
+  elseif button == "RightButton" then
+    ToggleColorButton(self)
+  end
 end
 
 function Arh_MainFrame_ButtonBack_OnMouseDown(self, button)
 	if button == "LeftButton" then
-		Arh_MainFrame_ButtonBack_OnLClick()
+		addon:ReturnLastToCache()
+		PlaySound(SOUND_BACK)
 	elseif button == "RightButton" then
 	end
 end
@@ -1505,9 +1450,9 @@ end
 function addon:OnGathering()
 --	addon:SaveDifs()
 	addon:ReturnAllToCache()
-	ToggleColorButton(Arh_MainFrame_ButtonRed, ARH_RED, true)
-	ToggleColorButton(Arh_MainFrame_ButtonYellow, ARH_YELLOW, true)
-	ToggleColorButton(Arh_MainFrame_ButtonGreen, ARH_GREEN, true)
+	ToggleColorButton(Arh_MainFrame_ButtonRed, true)
+	ToggleColorButton(Arh_MainFrame_ButtonYellow, true)
+	ToggleColorButton(Arh_MainFrame_ButtonGreen, true)
 --	PlaySound(SOUND_GATHERING)
 end
 
@@ -1567,19 +1512,19 @@ local function handler(msg, editbox)
 		addon:ToggleHUD()
 
 	elseif msg=='addred' or msg=='ar' then
-		Arh_MainFrame_ButtonRed_OnLClick()
+	  	Arh_MainFrame_ColorButton_OnMouseDown(Arh_MainFrame_ButtonRed, "LeftButton")
 	elseif msg=='addyellow' or msg=='ay' then
-		Arh_MainFrame_ButtonYellow_OnLClick()
+	  	Arh_MainFrame_ColorButton_OnMouseDown(Arh_MainFrame_ButtonYellow, "LeftButton")
 	elseif msg=='addgreen' or msg=='ag' then
-		Arh_MainFrame_ButtonGreen_OnLClick()
+	  	Arh_MainFrame_ColorButton_OnMouseDown(Arh_MainFrame_ButtonGreen, "LeftButton")
 
 
 	elseif msg=='togglered' or msg=='tr' then
-		Arh_MainFrame_ButtonRed_OnRClick()
+	  	Arh_MainFrame_ColorButton_OnMouseDown(Arh_MainFrame_ButtonRed, "RightButton")
 	elseif msg=='toggleyellow' or msg=='ty' then
-		Arh_MainFrame_ButtonYellow_OnRClick()
+	  	Arh_MainFrame_ColorButton_OnMouseDown(Arh_MainFrame_ButtonYellow, "RightButton")
 	elseif msg=='togglegreen' or msg=='tg' then
-		Arh_MainFrame_ButtonGreen_OnRClick()
+	  	Arh_MainFrame_ColorButton_OnMouseDown(Arh_MainFrame_ButtonGreen, "RightButton")
 
 	elseif msg=='back' or msg=='b' then
 		Arh_MainFrame_ButtonBack_OnLClick()
