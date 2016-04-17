@@ -4,6 +4,18 @@
  ..\..\FrameXML\UI.xsd">
 
 <GameTooltip name="Arh_Tooltip" frameStrata="TOOLTIP" hidden="true" inherits="GameTooltipTemplate"/>
+<Button name="ARHButtonTemplate" inherits="SecureActionButtonTemplate" virtual="true">
+	<Size x="30" y="30"/>
+	<Scripts>
+		<OnEnter> Arh_ShowTooltip(self) </OnEnter>
+		<OnLeave> Arh_HideTooltip(self) </OnLeave>
+	</Scripts>
+</Button>
+<Button name="ARHColorButtonTemplate" inherits="ARHButtonTemplate" virtual="true">
+	<Scripts>
+		<OnMouseDown function="Arh_MainFrame_ColorButton_OnMouseDown"/>
+	</Scripts>
+</Button>
 <Frame  name="Arh_MainFrame" parent="UIParent" enableMouse="true" movable="true">
 	<Anchors>
 		<Anchor point="CENTER"/>
@@ -46,8 +58,7 @@
 			</Scripts>
 		</Frame>
 
-		<Button name="$parent_ButtonRed" inherits="SecureActionButtonTemplate">
-			<Size x="30" y="30"/>
+		<Button name="$parent_ButtonRed" inherits="ARHColorButtonTemplate" id="3">
 			<Anchors>
 				<Anchor point="TOPLEFT" x="3" y="-5"/>
 			</Anchors>
@@ -57,14 +68,8 @@
 			<PushedTexture file="Interface\Minimap\TRACKING\OBJECTICONS">
 				<TexCoords left="0.625" right="0.75" top="0" bottom="0.5"/>
 			</PushedTexture>
-			<Scripts>
-				<OnMouseDown function="Arh_MainFrame_ButtonRed_OnMouseDown"/>
-				<OnEnter> Arh_ShowTooltip(self) </OnEnter>
-				<OnLeave> Arh_HideTooltip(self) </OnLeave>
-			</Scripts>
 		</Button>
-		<Button name="$parent_ButtonYellow" inherits="SecureActionButtonTemplate">
-			<Size x="30" y="30"/>
+		<Button name="$parent_ButtonYellow" inherits="ARHColorButtonTemplate" id="2">
 			<Anchors>
 				<Anchor point="TOPLEFT" x="28" y="-5"/>
 			</Anchors>
@@ -74,14 +79,8 @@
 			<PushedTexture file="Interface\Minimap\TRACKING\OBJECTICONS">
 				<TexCoords left="0.75" right="0.875" top="0" bottom="0.5"/>
 			</PushedTexture>
-			<Scripts>
-				<OnMouseDown function="Arh_MainFrame_ButtonYellow_OnMouseDown"/>
-				<OnEnter> Arh_ShowTooltip(self) </OnEnter>
-				<OnLeave> Arh_HideTooltip(self) </OnLeave>
-			</Scripts>
   		</Button>
-		<Button name="$parent_ButtonGreen" inherits="SecureActionButtonTemplate">
-			<Size x="30" y="30"/>
+		<Button name="$parent_ButtonGreen" inherits="ARHColorButtonTemplate" id="1">
 			<Anchors>
 				<Anchor point="TOPLEFT" x="53" y="-5"/>
 			</Anchors>
@@ -91,14 +90,8 @@
 			<PushedTexture file="Interface\Minimap\TRACKING\OBJECTICONS">
 				<TexCoords left="0.875" right="1" top="0" bottom="0.5"/>
 			</PushedTexture>
-			<Scripts>
-				<OnMouseDown function="Arh_MainFrame_ButtonGreen_OnMouseDown"/>
-				<OnEnter> Arh_ShowTooltip(self) </OnEnter>
-				<OnLeave> Arh_HideTooltip(self) </OnLeave>
-			</Scripts>
 		</Button>
-		<Button name="$parent_ButtonBack">
-			<Size x="30" y="30"/>
+		<Button name="$parent_ButtonBack" inherits="ARHButtonTemplate">
 			<Anchors>
 				<Anchor point="TOPLEFT" x="83" y="-5"/>
 			</Anchors>
@@ -107,24 +100,19 @@
 			</NormalTexture>
 			<Scripts>
 				<OnMouseDown function="Arh_MainFrame_ButtonBack_OnMouseDown"/>
-				<OnEnter> Arh_ShowTooltip(self) </OnEnter>
-				<OnLeave> Arh_HideTooltip(self) </OnLeave>
 			</Scripts>
 		</Button>
-		<Button name="$parent_ButtonDig" inherits="SecureActionButtonTemplate">
+		<Button name="$parent_ButtonDig" inherits="ARHButtonTemplate">
 			<Attributes>
 				<Attribute name="type" type="string" value="spell"/>
 				<Attribute name="spell" type="string" value="Survey"/>
 			</Attributes>
-			<Size x="30" y="30"/>
 			<Anchors>
 				<Anchor point="TOPLEFT" x="123" y="-5"/>
 			</Anchors>
 			<NormalTexture file="Interface\Archeology\arch-icon-marker"/>
 			<Scripts>
 				<OnMouseDown function="Arh_MainFrame_ButtonDig_OnMouseDown"/>
-				<OnEnter> Arh_ShowTooltip(self) </OnEnter>
-				<OnLeave> Arh_HideTooltip(self) </OnLeave>
 			</Scripts>
 		</Button>
 		<ArchaeologyDigSiteFrame name="Arh_ArchaeologyDigSites_BattlefieldMinimap" hidden="true">
