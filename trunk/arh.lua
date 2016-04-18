@@ -629,10 +629,13 @@ local OptionsTable =
 						type = "group",
 						name = L["General HUD Settings"],
 						inline = true,
-						args = 
-						{
-							ShowGatherMate2 =
-							{
+						get = function(info) return cfg.HUD[info[#info]] end,
+						set = function(info,val)
+							cfg.HUD[info[#info]] = val
+							addon:HUD_config_update()
+						      end,
+						args = {
+							ShowGatherMate2 = {
 								order = 1,
 								name = L["Show GatherMate2 pins on the HUD (recomended)"],
 								desc = L["Redirect GatherMate2 output to the HUD when visible"],
@@ -642,23 +645,19 @@ local OptionsTable =
 								get = function(info) return cfg.HUD.UseGatherMate2 end,
 								set = function(info,val) Arh_SetUseGatherMate2(val) end,
 							},
-							ArchOnly =
-							{
+							ArchOnly = {
 								order = 1.5,
 								name = L["Arch nodes only"],
 								desc = L["Only show Archaeology nodes from GatherMate2 on the HUD"],
 								type = "toggle",
 								width = "full",
-								get = function(info) return cfg.HUD.ArchOnly end,
-								set =
-									function(info,val)
+								set = function(info,val)
 										cfg.HUD.ArchOnly = val
 										addon:ToggleHUD();addon:ToggleHUD()
 									end,
 								disabled = function(info) return not cfg.HUD.UseGatherMate2 end,
 							},
-							scale =
-							{
+							Scale = {
 								order = 2,
 								name = L["HUD Scaling"],
 								desc = L["Size of the HUD\nIf you need ZOOM - use Minimap ZOOM instead"],
@@ -668,15 +667,8 @@ local OptionsTable =
 								softMin = 0.1,
 								softMax = 3,
 								step = 0.1,
-								get = function(info) return cfg.HUD.Scale end,
-								set =
-									function(info,val)
-										cfg.HUD.Scale = val
-										addon:HUD_config_update()
-									end,
 							},
-							alpha =
-							{
+							Alpha = {
 								order = 3,
 								name = L["HUD Alpha"],
 								desc = L["How transparent is HUD"],
@@ -685,15 +677,8 @@ local OptionsTable =
 								max = 1,
 								step = 0.01,
 								isPercent = true,
-								get = function(info) return cfg.HUD.Alpha end,
-								set =
-									function(info,val)
-										cfg.HUD.Alpha = val
-										addon:HUD_config_update()
-									end,
 							},
-							posx =
-							{
+							PosX = {
 								order = 3,
 								name = L["HUD X-Offset"],
 								desc = L["Horizontal position of HUD relative to screen center"],
@@ -702,14 +687,8 @@ local OptionsTable =
 								max = 0.5,
 								step = 0.01,
 								isPercent = true,
-								get = function(info) return cfg.HUD.PosX end,
-								set = function(info,val)
-										cfg.HUD.PosX = val
-										addon:HUD_config_update()
-									end,
 							},
-							posy =
-							{
+							PosY = {
 								order = 3,
 								name = L["HUD Y-Offset"],
 								desc = L["Vertical position of HUD relative to screen center"],
@@ -718,28 +697,15 @@ local OptionsTable =
 								max = 0.5,
 								step = 0.01,
 								isPercent = true,
-								get = function(info) return cfg.HUD.PosY end,
-								set = function(info,val)
-										cfg.HUD.PosY = val
-										addon:HUD_config_update()
-									end,
 							},
-							ShowArrow =
-							{
+							ShowArrow = {
 								order = 4,
 								name = L["Show Player Arrow"],
 								desc = L["Draw arrow in the center of the HUD"],
 								type = "toggle",
 								width = "full",
-								get = function(info) return cfg.HUD.ShowArrow end,
-								set =
-									function(info,val)
-										cfg.HUD.ShowArrow = val
-										addon:HUD_config_update()
-									end,
 							},
-							ArrowScale =
-							{
+							ArrowScale = {
 								order = 5,
 								name = L["Arrow Scaling"],
 								desc = L["Size of the Player Arrow"],
@@ -750,15 +716,8 @@ local OptionsTable =
 								softMin = 0.1,
 								softMax = 10,
 								step = 0.1,
-								get = function(info) return cfg.HUD.ArrowScale end,
-								set =
-									function(info,val)
-										cfg.HUD.ArrowScale = val
-										addon:HUD_config_update()
-									end,
 							},
-							ArrowAlpha =
-							{
+							ArrowAlpha = {
 								order = 6,
 								name = L["Arrow Alpha"],
 								desc = L["How transparent is Player Arrow"],
@@ -768,28 +727,14 @@ local OptionsTable =
 								max = 1,
 								step = 0.01,
 								isPercent = true,
-								get = function(info) return cfg.HUD.ArrowAlpha end,
-								set =
-									function(info,val)
-										cfg.HUD.ArrowAlpha = val
-										addon:HUD_config_update()
-									end,
 							},
-							ShowSuccessCircle =
-							{
+							ShowSuccessCircle = {
 								order = 7,
 								name = L["Show Success Circle"],
 								desc = L["Survey will succeed if fragment lies within this circle"],
 								type = "toggle",
-								get = function(info) return cfg.HUD.ShowSuccessCircle end,
-								set =
-									function(info,val)
-										cfg.HUD.ShowSuccessCircle = val
-										addon:HUD_config_update()
-									end,
 							},
-							SuccessCircleColor =
-							{
+							SuccessCircleColor = {
 								order = 8,
 								name = L["Success Circle Color"],
 								desc = L["Color of the Success Circle (you can also set alpha here)"],
@@ -900,111 +845,37 @@ local OptionsTable =
 						type = "group",
 						name = L["Annulus Sectors Settings"],
 						inline = true,
-						args = 
-						{
-							RedSectAlpha =
-							{
-								order = 1,
-								name = L["%s Sector Alpha"]:format(L["Red"]),
-								desc = L["How transparent is %s Annulus Sector"]:format(L["Red"]),
-								type = "range",
-								min = 0,
-								max = 1,
-								step = 0.01,
-								isPercent = true,
-								get = function(info) return cfg.HUD.RedSectAlpha end,
-								set =
-									function(info,val)
-										cfg.HUD.RedSectAlpha = val
-										addon:UpdateAlphaEverything()
-									end,
-							},
-							RedLineAlpha =
-							{
-								order = 2,
-								name = L["%s Line Alpha"]:format(L["Red"]),
-								desc = L["How transparent is %s Direction Line"]:format(L["Red"]),
-								type = "range",
-								min = 0,
-								max = 1,
-								step = 0.01,
-								isPercent = true,
-								get = function(info) return cfg.HUD.RedLineAlpha end,
-								set =
-									function(info,val)
-										cfg.HUD.RedLineAlpha = val
-										addon:UpdateAlphaEverything()
-									end,
-							},
-							YellowSectAlpha =
-							{
-								order = 3,
-								name = L["%s Sector Alpha"]:format(L["Yellow"]),
-								desc = L["How transparent is %s Annulus Sector"]:format(L["Yellow"]),
-								type = "range",
-								min = 0,
-								max = 1,
-								step = 0.01,
-								isPercent = true,
-								get = function(info) return cfg.HUD.YellowSectAlpha end,
-								set =
-									function(info,val)
-										cfg.HUD.YellowSectAlpha = val
-										addon:UpdateAlphaEverything()
-									end,
-							},
-							YellowLineAlpha =
-							{
-								order = 4,
-								name = L["%s Line Alpha"]:format(L["Yellow"]),
-								desc = L["How transparent is %s Direction Line"]:format(L["Yellow"]),
-								type = "range",
-								min = 0,
-								max = 1,
-								step = 0.01,
-								isPercent = true,
-								get = function(info) return cfg.HUD.YellowLineAlpha end,
-								set =
-									function(info,val)
-										cfg.HUD.YellowLineAlpha = val
-										addon:UpdateAlphaEverything()
-									end,
-							},
-							GreenSectAlpha =
-							{
-								order = 5,
-								name = L["%s Sector Alpha"]:format(L["Green"]),
-								desc = L["How transparent is %s Annulus Sector"]:format(L["Green"]),
-								type = "range",
-								min = 0,
-								max = 1,
-								step = 0.01,
-								isPercent = true,
-								get = function(info) return cfg.HUD.GreenSectAlpha end,
-								set =
-									function(info,val)
-										cfg.HUD.GreenSectAlpha = val
-										addon:UpdateAlphaEverything()
-									end,
-							},
-							GreenLineAlpha =
-							{
-								order = 6,
-								name = L["%s Line Alpha"]:format(L["Green"]),
-								desc = L["How transparent is %s Direction Line"]:format(L["Green"]),
-								type = "range",
-								min = 0,
-								max = 1,
-								step = 0.01,
-								isPercent = true,
-								get = function(info) return cfg.HUD.GreenLineAlpha end,
-								set =
-									function(info,val)
-										cfg.HUD.GreenLineAlpha = val
-										addon:UpdateAlphaEverything()
-									end,
-							},
-						},
+						get = function(info) return cfg.HUD[info[#info]] end,
+						set = function(info,val)
+								cfg.HUD[info[#info]] = val
+								addon:UpdateAlphaEverything()
+							end,
+						args = (function()
+						  local ret = {}
+						  for id,cname in ipairs(id2cname) do
+						    ret[cname.."SectAlpha"] = {
+						      	order = id*2,
+						      	name = L["%s Sector Alpha"]:format(L[cname]),
+						      	desc = L["How transparent is %s Annulus Sector"]:format(L[cname]),
+							type = "range",
+							min = 0,
+							max = 1,
+							step = 0.01,
+							isPercent = true,
+						    }
+						    ret[cname.."LineAlpha"] = {
+						     	order = id*2+1,
+						      	name = L["%s Line Alpha"]:format(L[cname]),
+						      	desc = L["How transparent is %s Direction Line"]:format(L[cname]),
+							type = "range",
+							min = 0,
+							max = 1,
+							step = 0.01,
+							isPercent = true,
+						    }
+						  end
+						  return ret
+						end)()
 					},
 				},
 			},
