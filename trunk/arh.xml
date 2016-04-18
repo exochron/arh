@@ -14,6 +14,7 @@
 <Button name="ARHColorButtonTemplate" inherits="ARHButtonTemplate" virtual="true">
 	<Scripts>
 		<OnMouseDown function="Arh_MainFrame_ColorButton_OnMouseDown"/>
+		<OnLoad>Arh.colorButton[self:GetID()] = self</OnLoad>
 	</Scripts>
 </Button>
 <Frame  name="Arh_MainFrame" parent="UIParent" enableMouse="true" movable="true">

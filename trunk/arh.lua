@@ -22,6 +22,7 @@ local id2cname = {
   [ARH_YELLOW] = "Yellow",
   [ARH_RED] = "Red",
 }
+addon.colorButton = {}
 
 local CONYARDS = {[ARH_GREEN] = 40, [ARH_YELLOW] = 80, [ARH_RED] = 640}
 
@@ -1072,12 +1073,11 @@ local function SetTooltips()
 				return cs(L["Left Click"])..": "..L["move window"].."\n"..cs(L["Right Click"])..": "..L["Show/Hide Config"]
 			end
 		end
-	Arh_MainFrame_ButtonRed.TooltipText = cs(L["Left Click"])..": "..L["add new %s zone to the HUD"]:format(L["red"]).."\n"..
-                                              cs(L["Right Click"])..": "..L["show/hide all %s areas on the HUD"]:format(L["red"])
-	Arh_MainFrame_ButtonYellow.TooltipText = cs(L["Left Click"])..": "..L["add new %s zone to the HUD"]:format(L["yellow"]).."\n"..
-                                                 cs(L["Right Click"])..": "..L["show/hide all %s areas on the HUD"]:format(L["yellow"])
-	Arh_MainFrame_ButtonGreen.TooltipText = cs(L["Left Click"])..": "..L["add new %s zone to the HUD"]:format(L["green"]).."\n"..
-                                                cs(L["Right Click"])..": "..L["show/hide all %s areas on the HUD"]:format(L["green"])
+	for id, button in ipairs(addon.colorButton) do
+	  local cname = id2cname[id]:lower()
+	  button.TooltipText = cs(L["Left Click"])..": "..L["add new %s zone to the HUD"]:format(L[cname]).."\n"..
+                               cs(L["Right Click"])..": "..L["show/hide all %s areas on the HUD"]:format(L[cname])
+	end
 	Arh_MainFrame_ButtonDig.TooltipText = cs(L["Left Click"])..": "..L["cast Survey"].."\n"..
                                               cs(L["Right Click"])..": "..L["Show/Hide the HUD"].."\n"..
                                               cs(L["Middle Click"])..": "..L["Open archaeology window"]
@@ -1227,14 +1227,8 @@ local function AddCon(color, x, y, a)
 	table.insert(addon.ConsArray,item)
 	UpdateConAndLine(item.texture, item.texture_line, color)
 
-	local visible
-	if color==ARH_RED then
-		visible = not Arh_MainFrame_ButtonRed.Canceled
-	elseif color==ARH_YELLOW then
-		visible = not Arh_MainFrame_ButtonYellow.Canceled
-	elseif color==ARH_GREEN then
-		visible = not Arh_MainFrame_ButtonGreen.Canceled
-	end
+	local visible = not addon.colorButton[color].Canceled
+
 	SetVisible(item.texture, visible)
 	SetVisible(item.texture_line, visible)
 
@@ -1450,9 +1444,9 @@ end
 function addon:OnGathering()
 --	addon:SaveDifs()
 	addon:ReturnAllToCache()
-	ToggleColorButton(Arh_MainFrame_ButtonRed, true)
-	ToggleColorButton(Arh_MainFrame_ButtonYellow, true)
-	ToggleColorButton(Arh_MainFrame_ButtonGreen, true)
+	for _, button in ipairs(addon.colorButton) do
+	  ToggleColorButton(button, true)
+	end
 --	PlaySound(SOUND_GATHERING)
 end
 
@@ -1473,7 +1467,6 @@ function addon:mount()
   end
   C_MountJournal.Summon(0) -- random favorite mount
 end
-
 
 function Arh_MainFrame_ButtonDig_OnMouseDown(self, button)
 	if button == "LeftButton" then
@@ -1658,19 +1651,16 @@ function Arh_MainFrame_Init()
 		SetVisible(Arh_ArchaeologyDigSites_BattlefieldMinimap, cfg.DigSites.ShowOnBattlefieldMinimap)
 	end
 
-	InitCancelableButton(Arh_MainFrame_ButtonRed)
-	InitCancelableButton(Arh_MainFrame_ButtonYellow)
-	InitCancelableButton(Arh_MainFrame_ButtonGreen)
+	for id, button in ipairs(addon.colorButton) do
+	  InitCancelableButton(button)
+	  button:SetHitRectInsets(6,6,6,6)
+	end
 	InitCancelableButton(Arh_MainFrame_ButtonDig)
 
 	Arh_MainFrame_ButtonDig.CanceledTexture:SetSize(30, 30)
 	Arh_MainFrame_ButtonDig:SetAttribute("spell", GetSpellInfo(80451))
 	addon:ToggleHUD(cfg.HUD.Visible)
 	addon:CheckSuppress()
-
-	Arh_MainFrame_ButtonRed:SetHitRectInsets(6,6,6,6)
-	Arh_MainFrame_ButtonYellow:SetHitRectInsets(6,6,6,6)
-	Arh_MainFrame_ButtonGreen:SetHitRectInsets(6,6,6,6)
 
 	Arh_MainFrame_ButtonBack:SetHitRectInsets(0,0,6,6)
 end
