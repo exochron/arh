@@ -544,38 +544,28 @@ local OptionsTable =
 						type = "group",
 						name = L["Misc Settings"],
 						inline = true,
-
-						args =
-						{
-							PlaySounds =
-							{
+						args = (function()
+						  local ret = {}
+						  ret.PlaySounds = {
 								order = 1,
 								name = L["Play Sounds"],
 								desc = L["Play confirmation sounds for various actions"],
 								type = "toggle",
-							},
-							MountRed =
-							{
-								order = 11,
-								name = L["Mount %s"]:format(L["red"]),
+						  }
+						  for id,cname in ipairs(id2cname) do
+						    ret["Mount"..cname] = {
+						    		order = 10+id,
+								name = L["Mount %s"]:format(L[cname:lower()]),
 								desc = L["Automatically mount when adding this color to the HUD"],
 								type = "toggle",
-							},
-							MountYellow =
-							{
-								order = 12,
-								name = L["Mount %s"]:format(L["yellow"]),
-								desc = L["Automatically mount when adding this color to the HUD"],
-								type = "toggle",
-							},
-							MountGreen =
-							{
-								order = 13,
-								name = L["Mount %s"]:format(L["green"]),
-								desc = L["Automatically mount when adding this color to the HUD"],
-								type = "toggle",
-							},
-						},
+                        					set = function(info, value)
+                                        				cfg.MainFrame[info[#info]] = value
+									addon:init_travelform()
+                        					end,
+						    }
+						  end 
+						  return ret
+						end)(),
 					},
 				},
 			},
@@ -1261,7 +1251,8 @@ function Arh_MainFrame_ColorButton_OnMouseDown(self, button)
   if button == "LeftButton" then
     local id = self:GetID()
     AddPoint(id)
-    if cfg.MainFrame["Mount"..id2cname[id]] and not self:GetAttribute("spell") then
+    if cfg.MainFrame["Mount"..id2cname[id]] 
+       and not self:GetAttribute("type") then -- travel form handled by secure button
       addon:mount()
     end
   elseif button == "RightButton" then
@@ -1316,12 +1307,23 @@ function addon:mount()
       return
     end
   end
-  if false and select(2,UnitClass("player")) == "DRUID" then
-    CastSpellByID(783) -- travel form, protected action >.<
-    CastShapeshiftForm(3) -- also protected
-    return
-  end
   C_MountJournal.Summon(0) -- random favorite mount
+end
+
+function addon:init_travelform()
+  -- setup secure buttons for travel form mounting
+  if InCombatLockdown() then return end
+  local mt
+  local spellid = 783 -- travel form
+  if select(2,UnitClass("player")) == "DRUID" and
+     IsPlayerSpell(spellid) then -- spell learned (currently level 16)
+     mt = string.format("/cast [nostance:3] %s", GetSpellInfo(spellid))
+  end
+  for id, button in ipairs(addon.colorButton) do
+       local set = cfg.MainFrame["Mount"..id2cname[id]] and mt or nil
+       button:SetAttribute("type", set and "macro")
+       button:SetAttribute("macrotext", set)
+  end
 end
 
 function Arh_MainFrame_ButtonDig_OnMouseDown(self, button)
@@ -1517,6 +1519,7 @@ function Arh_MainFrame_Init()
 	Arh_MainFrame_ButtonDig:SetAttribute("spell", GetSpellInfo(80451))
 	addon:ToggleHUD(cfg.HUD.Visible)
 	addon:CheckSuppress()
+	addon:init_travelform()
 
 	Arh_MainFrame_ButtonBack:SetHitRectInsets(0,0,6,6)
 end
