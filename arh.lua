@@ -22,6 +22,11 @@ local id2cname = {
   [ARH_YELLOW] = "Yellow",
   [ARH_RED] = "Red",
 }
+local id2rgb = {
+  [ARH_GREEN] =  { 0, 1, 0 },
+  [ARH_YELLOW] = { 0.5, 0.5, 0 },
+  [ARH_RED] =    { 1, 0, 0 },
+}
 addon.colorButton = {}
 
 local CONYARDS = {[ARH_GREEN] = 40, [ARH_YELLOW] = 80, [ARH_RED] = 640}
@@ -296,7 +301,7 @@ local bindings = {
   { name="TOGGLEHUD", 	desc=L["Show/Hide the HUD"], 			alias="h" },
   { name="BACK",	desc=L["Remove one previously added area"], 	alias="b", 	order=-1 },
 }
-for _,color in ipairs({"Red", "Yellow", "Green"}) do
+for _,color in ipairs(id2cname) do
   local c = color:lower():sub(1,1)
   table.insert(bindings, { name=color..":Left", desc=L["Add %s area to the HUD"]:format(L[color:lower()]), alias="a"..c })
   table.insert(bindings, { name=color..":Right", desc=L["Show/Hide all %s areas"]:format(L[color:lower()]), alias="t"..c })
@@ -572,12 +577,12 @@ local OptionsTable =
 							},
 						},
 					},
-					KeyBindings =
-					{
-						order = 3,
+				},
+			},
+			KeyBindings = {
+						order = 3.5,
 						type = "group",
-						name = L["Key Bindings Settings"],
-						inline = true,
+						name = KEY_BINDINGS,
 						get = function(info)
 							return GetBindingKey(info.arg)
 						      end,
@@ -609,9 +614,6 @@ local OptionsTable =
 						  end
 						  return ret
 						end)(),
-					},
-
-				},
 			},
 			HUD =
 			{
@@ -1115,25 +1117,8 @@ local function CreateLineTexture(parent, contexture, color)
 end
 
 local function SetTextureColor(texture, color, isline)
-	local r,g,b,a
-	if isline then
-		if color == ARH_RED then
-			r,g,b,a = 1,0,0,cfg.HUD.RedLineAlpha
-		elseif color == ARH_YELLOW then
-			r,g,b,a = 0.5,0.5,0,cfg.HUD.YellowLineAlpha
-		elseif color == ARH_GREEN then
-			r,g,b,a = 0,1,0,cfg.HUD.GreenLineAlpha
-		end
-	else
-		if color == ARH_RED then
-			r,g,b,a = 1,0,0,cfg.HUD.RedSectAlpha
-		elseif color == ARH_YELLOW then
-			r,g,b,a = 0.5,0.5,0,cfg.HUD.YellowSectAlpha
-		elseif color == ARH_GREEN then
-			r,g,b,a = 0,1,0,cfg.HUD.GreenSectAlpha
-		end
-	end
-		
+	local r,g,b = unpack(id2rgb[color])
+	local a = cfg.HUD[string.format("%s%sAlpha",id2cname[color],(isline and "Line" or "Sect"))]
 	texture:SetVertexColor(r,g,b,a)
 end
 
@@ -1276,7 +1261,7 @@ function addon:UpdateAlphaEverything()
 		addon:UpdateAlpha(item.texture_line, item.color, true)
 		addon:UpdateAlpha(item.texture, item.color, false)
 	end
-	for color=ARH_GREEN,ARH_RED do
+	for color in ipairs(id2cname) do
 	  for _,item in ipairs(addon.ConsCache[color]) do
 		addon:UpdateAlpha(item.texture_line, color, true)
 		addon:UpdateAlpha(item.texture, color, false)
