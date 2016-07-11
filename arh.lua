@@ -1317,7 +1317,7 @@ function addon:init_travelform()
   local spellid = 783 -- travel form
   if select(2,UnitClass("player")) == "DRUID" and
      IsPlayerSpell(spellid) then -- spell learned (currently level 16)
-     mt = string.format("/cast [nostance:3] %s", GetSpellInfo(spellid))
+     mt = string.format("/cast [nostance:3,nocombat] %s", GetSpellInfo(spellid))
   end
   for id, button in ipairs(addon.colorButton) do
        local set = cfg.MainFrame["Mount"..id2cname[id]] and mt or nil
