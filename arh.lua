@@ -1321,8 +1321,10 @@ function addon:init_travelform()
   end
   for id, button in ipairs(addon.colorButton) do
        local set = cfg.MainFrame["Mount"..id2cname[id]] and mt or nil
-       button:SetAttribute("type", set and "macro")
-       button:SetAttribute("macrotext", set)
+       if button:GetAttribute("macrotext") ~= set then
+         button:SetAttribute("type", set and "macro")
+         button:SetAttribute("macrotext", set)
+       end
   end
 end
 
@@ -1424,6 +1426,9 @@ function Arh_MainFrame_OnEvent(self, event, ...)
 		OnAddonLoaded(...)
 	elseif event == "UNIT_SPELLCAST_SENT" then
 		OnSpellSent(...)
+	elseif event == "SPELLS_CHANGED" then 
+	        -- ticket 58: IsPlayerSpell(travel form) not available at static load, and may change with level up
+		addon:init_travelform()
 	else
 		addon:CheckSuppress()
 	end
@@ -1496,7 +1501,9 @@ function Arh_MainFrame_Init()
 	                     "PLAYER_UPDATE_RESTING", "PLAYER_ALIVE", "PLAYER_DEAD",
 			     "PET_BATTLE_OPENING_START", "PET_BATTLE_CLOSE", "PET_BATTLE_OVER",
 			     "UNIT_ENTERED_VEHICLE", "UNIT_EXITED_VEHICLE",
-			     "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED" }) do
+			     "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED",
+			     "SPELLS_CHANGED"
+			     }) do
 		Arh_MainFrame:RegisterEvent(evt)
 	end
 	SetTooltips()
