@@ -1,4 +1,4 @@
-## Interface: 60200
+## Interface: 70000
 ## Title: Archaeo Helper |cffff7d0aby Biasha
 ## Author: Biasha and oscarucb
 ## Notes: Helps you to find archaeology fragments easily
