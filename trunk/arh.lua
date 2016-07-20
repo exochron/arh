@@ -1307,7 +1307,7 @@ function addon:mount()
       return
     end
   end
-  C_MountJournal.Summon(0) -- random favorite mount
+  (C_MountJournal.Summon or C_MountJournal.SummonByID)(0) -- random favorite mount
 end
 
 function addon:init_travelform()
