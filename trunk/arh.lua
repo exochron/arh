@@ -7,7 +7,6 @@ vars.svnrev = vars.svnrev or {}
 local svnrev = vars.svnrev
 svnrev["Arh.lua"] = tonumber(("$Revision$"):match("%d+"))
 
-local MapData = nil
 local Config = nil -- AceConfig-3.0
 local minimapIcon = LibStub("LibDBIcon-1.0")
 local LDB, LDBo
@@ -428,6 +427,7 @@ local OptionsTable =
 								set = function(info, val)
 										addon:ToggleMainFrame(val)
 									end,
+								disabled = function(info) return cfg.MainFrame.FollowDigsite end,
 							},
 							FollowArchy =
 							{
@@ -435,11 +435,11 @@ local OptionsTable =
 								name = L["Toggle with Archy"],
 								desc = L["Show/Hide window when you show/hide Archy addon"],
 								type = "toggle",
-								disabled = function(info) return not Archy end,
+								disabled = function(info) return not Archy or cfg.MainFrame.FollowDigsite end,
 							},
 							FollowDigsite =
 							{
-								order = 2.5,
+								order = 1.9,
 								name = L["Toggle with digsite"],
 								desc = L["Show/Hide window when entering/leaving a digsite"],
 								type = "toggle",
@@ -1176,7 +1176,20 @@ end
 
 function addon:GetPosYards()
   local x,y,map,level = addon:GetPos()
-  return MapData:PointToYards(map, level, x, y)
+  if x and y and map and x + y > 0 then
+    local id, _, _, left, right, top, bottom = GetAreaMapInfo(map)
+    if left == right or top == bottom then 
+      -- instanced areas should never be relevant to arch, but useful for testing
+      _, right, left, bottom, top = GetDungeonMapInfo(map)
+    end
+    if left and right and left > right then
+      x = x * (left - right)
+    end
+    if bottom and top and bottom < top then
+      y = y * (top - bottom)
+    end
+  end
+  return x,y,map,level
 end
 
 local function Distance(xa, ya, xb, yb)
@@ -1450,8 +1463,6 @@ local function InitCancelableButton(self)
 end
 
 function Arh_MainFrame_Init()
-	MapData = LibStub("LibMapData-1.0")
-
 	Config = LibStub("AceConfig-3.0")
 	ConfigDialog = LibStub("AceConfigDialog-3.0")
 	Config:RegisterOptionsTable("Archaeology Helper", OptionsTable, "arhcfg")
