@@ -9,5 +9,5 @@
 	<Binding name="CLICK Arh_MainFrame_ButtonYellow:RightButton" category="ADDONS"> </Binding>
 	<Binding name="CLICK Arh_MainFrame_ButtonGreen:LeftButton" category="ADDONS"> </Binding>
 	<Binding name="CLICK Arh_MainFrame_ButtonGreen:RightButton" category="ADDONS"> </Binding>
-	<Binding name="ARH_BACK" category="ADDONS"> Arh_MainFrame_ButtonBack_OnLClick() </Binding>
+	<Binding name="CLICK Arh_MainFrame_ButtonBack:LeftButton" category="ADDONS"> </Binding>
 </Bindings>

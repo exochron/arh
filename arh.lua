@@ -102,12 +102,12 @@ local function SetVisible(self, visible)
 	end
 end
 
-local SOUND_SHOWMAINFRAME = "Sound\\interface\\uMiniMapOpen.wav"
-local SOUND_HIDEMAINFRAME = "Sound\\interface\\uMiniMapClose.wav"
+local SOUND_SHOWMAINFRAME = "Sound\\interface\\uMiniMapOpen.ogg"
+local SOUND_HIDEMAINFRAME = "Sound\\interface\\uMiniMapClose.ogg"
 local SOUND_ADDCON = "Sound\\Interface\\iUiInterfaceButtonA.ogg"
-local SOUND_SHOWCOLOR = "Sound\\Universal\\TomeUnSheath.wav"
-local SOUND_HIDECOLOR = "Sound\\Universal\\TomeSheath.wav"
-local SOUND_BACK = "Sound\\interface\\PickUp\\PickUpMeat.wav"
+local SOUND_SHOWCOLOR = "Sound\\Universal\\TomeUnSheath.ogg"
+local SOUND_HIDECOLOR = "Sound\\Universal\\TomeSheath.ogg"
+local SOUND_BACK = "Sound\\interface\\PickUp\\PickUpMeat.ogg"
 --local SOUND_GATHERING = "Sound\\interface\\PickUp\\PickUpMeat.wav"
 
 local function PlaySound(soundfile)
@@ -298,7 +298,7 @@ local bindings = {
   { name="SHOWARCH", 	desc=L["Open archaeology window"] },
   { name="TOGGLEMAIN", 	desc=L["Show/Hide the Main Window"], 		alias="t" },
   { name="TOGGLEHUD", 	desc=L["Show/Hide the HUD"], 			alias="h" },
-  { name="BACK",	desc=L["Remove one previously added area"], 	alias="b", 	order=-1 },
+  { name="Back:Left",	desc=L["Remove one previously added area"], 	alias="b", 	order=-1 },
 }
 for _,color in ipairs(id2cname) do
   local c = color:lower():sub(1,1)
@@ -1393,7 +1393,7 @@ local function handler(msg, editbox)
 	  	Arh_MainFrame_ColorButton_OnMouseDown(Arh_MainFrame_ButtonGreen, "RightButton")
 
 	elseif msg=='back' or msg=='b' then
-		Arh_MainFrame_ButtonBack_OnLClick()
+		Arh_MainFrame_ButtonBack_OnMouseDown(Arh_MainFrame_ButtonBack, "LeftButton")
 	elseif msg=='clear' or msg=='c' then
 		addon:ReturnAllToCache()
 
