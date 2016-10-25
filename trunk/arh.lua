@@ -1312,14 +1312,6 @@ end
 
 function addon:mount()
   if InCombatLockdown() or IsMounted() or IsFlying() then return end
-  local c = GetItemCount(37011, false) -- Magic Broom 
-  if c and c > 0 then
-    local n = GetItemInfo(37011)
-    if n then
-      UseItemByName(n)
-      return
-    end
-  end
   (C_MountJournal.Summon or C_MountJournal.SummonByID)(0) -- random favorite mount
 end
 
@@ -1331,6 +1323,8 @@ function addon:init_travelform()
   if select(2,UnitClass("player")) == "DRUID" and
      IsPlayerSpell(spellid) then -- spell learned (currently level 16)
      mt = string.format("/cast [nostance:3,nocombat] %s", GetSpellInfo(spellid))
+  elseif (GetItemCount(37011, false) or 0) > 0 then -- Magic Broom
+     mt = "/use item:37011"
   end
   for id, button in ipairs(addon.colorButton) do
        local set = cfg.MainFrame["Mount"..id2cname[id]] and mt or nil
