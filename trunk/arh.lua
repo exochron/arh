@@ -150,11 +150,14 @@ addon.hiddenFrame = CreateFrame("Button", "ArhHiddenFrame", UIParent)
 addon.hiddenFrame:SetScript("OnUpdate",DigsiteUpdate)
 
 function addon:ToggleMainFrame(enable)
-	if enable ~= nil then
-		cfg.MainFrame.Visible = enable
-	else
-		cfg.MainFrame.Visible = not Arh_MainFrame:IsVisible()
+	if enable == nil then
+		enable = not Arh_MainFrame:IsVisible()
 	end
+	if enable and IsInInstance() then
+		print("Arh may not be used in instances.")
+		return
+	end
+	cfg.MainFrame.Visible = enable
 	if not InCombatLockdown() then SetVisible(Arh_MainFrame, cfg.MainFrame.Visible) end
 	addon:ToggleHUD(cfg.MainFrame.Visible)
 	if cfg.MainFrame.Visible then
@@ -165,11 +168,14 @@ function addon:ToggleMainFrame(enable)
 end
 
 function addon:ToggleHUD(enable)
-	if enable ~= nil then
-		cfg.HUD.Visible = enable
-	else
-		cfg.HUD.Visible = not Arh_HudFrame:IsVisible()
+	if enable == nil then
+		enable = not Arh_HudFrame:IsVisible()
 	end
+	if enable and IsInInstance() then
+		print("Arh may not be used in instances.")
+		return
+	end
+	cfg.HUD.Visible = enable
 	Arh_MainFrame_ButtonDig.Canceled = not cfg.HUD.Visible
 	SetVisible(Arh_MainFrame_ButtonDig.CanceledTexture, not cfg.HUD.Visible)
 	SetVisible(Arh_HudFrame, cfg.HUD.Visible)
